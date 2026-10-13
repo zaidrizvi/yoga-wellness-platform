@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="760" viewBox="0 0 800 760" fill="none">
+<!-- Original editorial placeholder. TODO: Replace with licensed wellness photography. -->
+<path fill="#E6E4D6" d="M0 0h800v760H0z"/>
+<path fill="#D6D6C2" d="M530 0h270v760H530z"/>
+<path d="m0 550 800-80v290H0V550Z" fill="#D0C3AC"/>
+<ellipse cx="411" cy="598" rx="162" ry="27" fill="#B9AE95"/>
+<path d="M328 354h167l-20 211c-5 44-119 44-124 0l-23-211Z" fill="#B78165"/>
+<ellipse cx="411" cy="354" rx="84" ry="18" fill="#99725C"/>
+<path d="M411 356c-12-81 49-151 34-261m-26 174c-59-13-83-53-107-102m121 40c37-7 74-40 99-80m-86-17c-36 0-66-23-84-51" stroke="#596F56" stroke-width="6"/>
+<path d="M311 169c-50-5-80-34-86-77 46 7 76 29 86 77Zm51-110c-36 3-70-12-82-46 40-2 64 11 82 46Zm83 38c-24-30-20-66-4-95 24 25 32 56 4 95Zm87 30c3-43 29-67 71-79-8 39-30 65-71 79Zm-100 82c20-49 55-60 97-55-23 39-52 56-97 55Zm-13 62c-50-2-83-26-91-70 41 7 76 29 91 70Z" fill="#738567"/>
+<path d="M153 542c0-47 30-71 58-71s58 24 58 71v40H153v-40Z" fill="#EEE7D6"/>
+<ellipse cx="211" cy="582" rx="58" ry="12" fill="#C3B79F"/>
+<path d="M548 589h123v20H548z" fill="#6E7F68"/>
+<path d="M548 611h123v17H548z" fill="#F0E7D5"/>
+<path d="M562 583h91v6h-91z" fill="#A5AE95"/>
+</svg>

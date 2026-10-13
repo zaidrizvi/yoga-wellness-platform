@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="960" viewBox="0 0 800 960" fill="none">
+<!-- Original editorial placeholder. TODO: Replace with licensed wellness photography. -->
+<path fill="#DBD5C2" d="M0 0h800v960H0z"/>
+<path fill="#EAE5D5" d="M0 0h500v705H0z"/>
+<path d="M137 705V258a182 182 0 0 1 364 0v447H137Z" fill="#AAB69E"/>
+<path d="M160 705V261a159 159 0 0 1 318 0v444H160Z" fill="#CED0BB"/>
+<path d="M318 103v602M159 355h319" stroke="#E6E0CD" stroke-width="8"/>
+<path d="M0 705h800v255H0z" fill="#C1AF93"/>
+<path d="m146 791 367-65 171 137-374 78-164-150Z" fill="#6B7C66"/>
+<path d="m163 797 347-61 158 125-355 71-150-135Z" stroke="#A9B69C" stroke-width="2"/>
+<path d="m209 779 99 60-38 40-99-60 38-40Z" fill="#D1B894"/>
+<path d="m213 789 78 47-21 26-77-47 20-26Z" fill="#E8D6B7"/>
+<path d="M591 541h104v174H591z" fill="#A77C61"/>
+<path d="M605 541c0-30 77-30 77 0" fill="#D0AC87"/>
+<path d="M610 541v168m14-168v168m15-168v168m15-168v168m15-168v168" stroke="#C5A27C" stroke-width="3"/>
+<path d="M616 543c-18-76 35-133 26-227m1 122c38-8 59-41 71-73m-76 45c-29-13-45-35-57-62" stroke="#65775E" stroke-width="4"/>
+<path d="M642 316c-26-21-25-49-10-72 19 23 26 43 10 72Zm72 49c-2-30 10-56 45-65-3 27-16 54-45 65Zm-133-17c-31-1-54-22-60-50 33 4 54 20 60 50Zm57 63c23-32 49-40 76-32-16 27-44 35-76 32Z" fill="#7E8B6C"/>
+</svg>
