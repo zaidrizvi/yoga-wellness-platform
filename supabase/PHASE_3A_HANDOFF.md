@@ -1,12 +1,31 @@
 # Phase 3A — pending database foundation
 
+## Simplified remaining workflow (latest instruction)
+
+One focused source review of the existing three migrations found no obvious critical privilege-escalation, private-data-exposure, or RLS defect. There are no destructive table drops, resets, or data wipes. The review checked fixed definer search paths, explicit function execution grants, closed anonymous table access, current database role checks, the single public listing projection, private verification notes, and owner/current-role Storage policies. This is source review, not executed database verification. No SQL or application code was changed during this review.
+
+Use the **existing hosted project for development only after checking for valuable data**. The verified target is `yoga-wellness-platform` (`nubblifjxikhpdvkgztt`), PostgreSQL 17.11, matching the configured application hostname. Authenticated read-only preflight found zero Auth users, zero Storage objects/buckets, no public tables/views, no private schema, and no Storage object policies. No existing application data or naming/policy conflicts were detected in these checks. Do not reset, delete, or overwrite anything to make a project appear empty.
+
+Prepare the dry run with the already-created migration files:
+
+```text
+npx.cmd --no-install supabase migration list --project-ref nubblifjxikhpdvkgztt
+npx.cmd --no-install supabase db push --project-ref nubblifjxikhpdvkgztt --dry-run
+```
+
+The dry run succeeded: it would apply exactly the three migration files listed below, with no seed files or role files. Remote migration history has no applied application migrations and no migration-history table was present in the read-only preflight. The local link file is absent, so supported explicit `--project-ref` targeting was used. Obtain **explicit deployment approval** before executing a real push. Approval to review SQL does not itself authorize deployment. No GitHub push is authorized.
+
+Following deployment approval and application, perform only a few essential checks on this verified development database: (1) anonymous private-table denial/public listing projection, (2) customer isolation/default role and failed privilege escalation, (3) professional self-verification denial plus immediate public exclusion after suspension, and (4) private document bucket and owner/current-role access restrictions. Use actual Supabase roles/context and transaction-rolled-back temporary fixtures where needed; do not commit fake users or documents. Report any critical failures, permit at most two targeted repair/retest cycles, and stop. Do not add test files, run the full existing pgTAP suite as a new release gate, install Docker, create another harness, or rerun passing frontend checks.
+
+This simplified workflow supersedes the earlier requirement to wait for the entire local pgTAP/concurrency suite before moving toward 3B. Existing test files remain available but unexecuted; unavailable local Supabase tests remain **blocked**. The detailed schema/security contract and 3B freshness requirements below remain applicable.
+
 Implemented locally on 13 October 2026. **Not deployed, not approved for deployment, and not verified on hosted Supabase.** The public website and existing Supabase application utilities remain unchanged. This is a database contract for 3B, not a live backend.
 
 ## Environment and verification
 
 Supabase CLI 2.120.0 is available. Local configuration uses PostgreSQL 17 and exposes only `public` and `graphql_public`; `private` is excluded. Docker/Podman are unavailable and nothing is listening on the configured local database port. No additional service troubleshooting was attempted after that was established.
 
-The CLI has no linked project reference. The configured project hostname has fingerprint `59e62f46421f` (SHA-256 prefix; credentials and configured values were not printed). Zero-record read-only REST probes were unavailable, so no remote-schema inference is made. Remote migration history is unknown. The supported `db push --linked --dry-run` could not proceed without a linked project. No SQL, reset, migration repair, account change, Storage upload, or configuration mutation was sent to the hosted project.
+Initial checks had no local project link and unavailable public REST probes. Subsequent authenticated CLI inspection identified the existing project, verified its match to configured hostname fingerprint `59e62f46421f`, inspected counts/schema metadata, listed empty remote migration history, and completed the explicit-target dry run successfully. Credentials and configured values were not printed. No migration SQL, reset, migration repair, account change, Storage upload, or application configuration mutation was executed on the hosted project. Read-only preflight SQL was executed through the supported CLI Management API query command.
 
 | Check | Actual result |
 | --- | --- |
@@ -15,6 +34,7 @@ The CLI has no linked project reference. The configured project hostname has fin
 | Local migration application | Blocked |
 | pgTAP, RLS, escalation, signup-trigger, and Storage policy behavior | Blocked; tests written, not executed |
 | Two-session concurrency | Blocked; not independently tested |
+| Hosted target/counts/history preflight and migration dry run | Pass; three pending migrations, no application data detected, no migrations applied |
 | Storage HTTP MIME/size enforcement and signed URL behavior | Blocked; only configuration/policy source reviewed |
 | TypeScript | Pass |
 | ESLint | Pass, no warnings |
@@ -148,7 +168,7 @@ Before any remote application: obtain trusted CLI/database access, link and veri
 
 3B must:
 
-1. Wait for approved migration deployment and real Supabase security test results; this database is not yet verified ready.
+1. Wait for approved migration deployment and the few essential hosted development permission checks in the simplified workflow; this database is not yet verified ready. The entire unavailable local pgTAP/concurrency suite is not a new release gate.
 2. Generate and use actual Supabase database types; preserve editorial copy while integrating operational records.
 3. Implement SSR Auth/verified identities and fail closed when role/profile initialization is unavailable.
 4. Read current `user_roles` for authorization and use guarded role/review RPCs; never trust editable metadata or JWT application-role claims.
