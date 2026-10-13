@@ -1,0 +1,31 @@
+begin;
+\ir ../fixtures.sql
+select no_plan();
+select is((select count(*) from public.profiles where id = '10000000-0000-4000-8000-000000000005'), 0::bigint, 'Signup/promotion does not require private profile enrichment');
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000003', true);
+select is((select count(*) from public.profiles), 1::bigint, 'Customer sees own profile only');
+select is((select count(*) from public.profiles where id = '10000000-0000-4000-8000-000000000004'), 0::bigint, 'Customer A cannot read B phone or profile');
+select lives_ok($$select public.ensure_own_profile('Repeated name')$$, 'Repeated lazy initialization is safe');
+select is((select full_name from public.profiles where id = auth.uid()), 'Fixture Customer A', 'Initialization does not overwrite existing profile');
+select lives_ok($$update public.profiles set full_name = 'Updated customer', phone = '+919888888888' where id = auth.uid()$$, 'Customer may update permitted own fields');
+select throws_ok($$update public.profiles set id = '10000000-0000-4000-8000-000000000004'$$, '42501', null, 'Profile identity cannot be changed');
+select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000005', true);
+select throws_ok($$select public.ensure_own_profile(repeat('x', 121))$$, '23514', null, 'Invalid optional enrichment fails independently');
+reset role;
+select ok(exists(select 1 from auth.users where id = '10000000-0000-4000-8000-000000000005'), 'Enrichment failure preserves Auth account');
+select is((select role from public.user_roles where user_id = '10000000-0000-4000-8000-000000000005'), 'professional', 'Enrichment failure preserves authoritative role');
+select throws_ok($$insert into public.profiles(id) values('90000000-0000-4000-8000-000000000001')$$, '23503', null, 'Profile requires real Auth identity');
+
+set local role anon;
+select throws_ok($$select * from public.profiles$$, '42501', null, 'Anon direct private profile access denied');
+select throws_ok($$select * from public.user_roles$$, '42501', null, 'Anon direct role access denied');
+select throws_ok($$select * from public.professional_profiles$$, '42501', null, 'Anon direct professional profile access denied');
+select throws_ok($$select * from public.professional_verifications$$, '42501', null, 'Anon direct verification access denied');
+select throws_ok($$select private.is_admin()$$, '42501', null, 'Anon cannot execute private helpers');
+select throws_ok($$select public.ensure_own_profile()$$, '42501', null, 'Anon cannot initialize profiles');
+reset role;
+select ok(not has_schema_privilege('anon', 'private', 'USAGE'), 'Private schema not usable by anon');
+select is((select count(*) from pg_tables where schemaname = 'public' and tablename = any(array['profiles','user_roles','professional_profiles','professional_verifications','service_categories','services','professional_services','service_areas','professional_service_areas','administrative_audit']) and rowsecurity), 10::bigint, 'All application tables have RLS');
+select * from finish();
+rollback;

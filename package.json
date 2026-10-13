@@ -10,7 +10,10 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "db:check": "node scripts/check-database.mjs",
+    "db:test": "npx --no-install supabase test db --local supabase/tests/database",
+    "db:inspect": "node scripts/inspect-database-target.mjs"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.3.1",
@@ -40,6 +43,7 @@
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.4.0",
     "jsdom": "^29.1.1",
+    "pgsql-parser": "^18.2.12",
     "postcss": "^8.5.30",
     "tailwindcss": "^4.3.3",
     "typescript": "^5.9.3",

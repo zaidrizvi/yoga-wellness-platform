@@ -39,6 +39,9 @@ $$;
 create function private.guard_role_mutation()
 returns trigger language plpgsql security definer set search_path = '' as $$
 begin
+  -- Ordinary signup inserts cannot remove an administrator. Keep that path
+  -- minimal and avoid serializing every registration against admin reviews.
+  if tg_op = 'INSERT' and new.role = 'customer' then return new; end if;
   perform private.lock_administrator_roles();
   if tg_op = 'UPDATE' and new.user_id is distinct from old.user_id then
     raise exception 'Role identity is immutable' using errcode = '23514';
@@ -106,6 +109,30 @@ end;
 $$;
 create trigger immutable_audit before update or delete on public.administrative_audit
 for each row execute function private.prevent_audit_mutation();
+
+create function private.record_verification_change()
+returns trigger language plpgsql security definer set search_path = '' as $$
+declare previous text; next_state text; target uuid;
+begin
+  if tg_op = 'INSERT' then
+    if new.status = 'pending' then return new; end if;
+    previous := null; next_state := new.status; target := new.professional_id;
+  elsif tg_op = 'DELETE' then
+    previous := old.status; next_state := 'deleted'; target := old.professional_id;
+  else
+    if (new.status, new.reviewed_by, new.reviewed_at, new.internal_notes) is not distinct from
+       (old.status, old.reviewed_by, old.reviewed_at, old.internal_notes) then return new; end if;
+    previous := old.status; next_state := new.status; target := new.professional_id;
+  end if;
+  insert into public.administrative_audit(target_user_id, actor_user_id, action, previous_state, new_state, reason)
+  values (target, auth.uid(), 'verification_change', previous, next_state,
+          nullif(current_setting('app.verification_change_reason', true), ''));
+  if tg_op = 'DELETE' then return old; end if;
+  return new;
+end;
+$$;
+create trigger record_verification_change after insert or update or delete on public.professional_verifications
+for each row execute function private.record_verification_change();
 
 create function private.ensure_customer_role(target_user uuid)
 returns void language sql security definer set search_path = '' as $$
@@ -176,6 +203,7 @@ begin
   end if;
   -- Re-promotion cannot resurrect an old verification/publication decision.
   update public.professional_profiles set public_visible = false where user_id = target_user;
+  perform set_config('app.verification_change_reason', 'Role changed; fresh professional review required', true);
   update public.professional_verifications set status = 'pending', reviewed_at = null,
     reviewed_by = null, internal_notes = '' where professional_id = target_user;
   -- Promotion, professional records, reset, and role audit all commit together.
@@ -203,12 +231,11 @@ begin
   if previous_status is null then raise exception 'Verification record not found' using errcode = 'P0002'; end if;
   select public_visible, approved_image_reference into previous_public, previous_image
   from public.professional_profiles where user_id = target_user for update;
+  perform set_config('app.verification_change_reason', coalesce(reason, ''), true);
   update public.professional_verifications set status = new_status, reviewed_by = auth.uid(),
     reviewed_at = now(), internal_notes = coalesce(new_internal_notes, '') where professional_id = target_user;
   update public.professional_profiles set public_visible = make_public,
     approved_image_reference = new_image_reference where user_id = target_user;
-  insert into public.administrative_audit(target_user_id, actor_user_id, action, previous_state, new_state, reason)
-  values (target_user, auth.uid(), 'verification_change', previous_status, new_status, reason);
   if previous_public is distinct from make_public or previous_image is distinct from new_image_reference then
     insert into public.administrative_audit(target_user_id, actor_user_id, action, previous_state, new_state, reason)
     values (target_user, auth.uid(), 'publication_change', previous_public::text, make_public::text, reason);
@@ -254,7 +281,7 @@ $$;
 grant usage on schema private to authenticated;
 revoke all on function private.has_role(text), private.is_admin(),
   private.touch_updated_at(), private.lock_administrator_roles(), private.guard_role_mutation(),
-  private.guard_admin_soft_delete(), private.record_role_change(), private.prevent_audit_mutation(),
+  private.guard_admin_soft_delete(), private.record_role_change(), private.prevent_audit_mutation(), private.record_verification_change(),
   private.ensure_customer_role(uuid), private.initialize_auth_user(), private.can_edit_own_professional_profile()
 from public, anon, authenticated;
 grant execute on function private.has_role(text), private.is_admin(), private.can_edit_own_professional_profile() to authenticated;
@@ -307,9 +334,13 @@ using (professional_id = (select auth.uid()) and private.has_role('professional'
 do $$
 declare table_name text;
 begin
-  foreach table_name in array array['service_categories', 'services', 'service_areas',
-    'professional_services', 'professional_service_areas'] loop
+  foreach table_name in array array['service_categories', 'services', 'service_areas'] loop
     execute format('create policy admin_manage on public.%I for all to authenticated using (private.is_admin()) with check (private.is_admin())', table_name);
   end loop;
 end;
 $$;
+
+create policy admin_manage on public.professional_services for all to authenticated
+using (private.is_admin()) with check (private.is_admin() and approved_by = (select auth.uid()));
+create policy admin_manage on public.professional_service_areas for all to authenticated
+using (private.is_admin()) with check (private.is_admin() and approved_by = (select auth.uid()));
