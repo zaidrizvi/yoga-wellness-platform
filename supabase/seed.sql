@@ -1,0 +1,2 @@
+-- Deliberately empty. Production service records are versioned in migrations.
+-- All synthetic identities live only inside rollback-based pgTAP transactions.
