@@ -39,3 +39,9 @@ export async function publicProfessionals() {
   if (error) throw new Error("Professional profiles are temporarily unavailable.");
   return data;
 }
+
+export async function publicOfferings(slug: string) {
+  const {data,error}=await publicClient().rpc("list_public_offerings",{p_service_slug:slug});
+  if(error) throw new Error("Approved offerings are temporarily unavailable.");
+  return data;
+}

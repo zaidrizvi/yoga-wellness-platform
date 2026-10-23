@@ -572,6 +572,15 @@ h2 em { color: #587053; }
 .check-email .check-email-note { font-size: 13px; color: var(--muted-foreground); }
 
 /* Customer requests and saved addresses. */
+.panel-navigation { padding-block: 12px; border-block: 1px solid var(--border); }
+.schedule-window { padding: 20px !important; border: 1px solid var(--border) !important; }
+.schedule-window legend { font-weight: 600; padding-inline: 8px; }
+.terms-summary { padding: 20px; background: var(--secondary); border: 1px solid var(--border); margin-block: 20px; }
+.offering-price { font-size: 22px; color: var(--primary); }
+.event-list { padding-left: 20px; display: grid; gap: 16px; }
+.account-panel summary { cursor: pointer; line-height: 1.8; min-height: 44px; padding-block: 12px; }
+.account-panel details { border-bottom: 1px solid var(--border); padding-block: 8px; }
+.account-form button.text-link { justify-self: start; text-align: left; }
 .booking-layout { display: grid; grid-template-columns: minmax(0,.8fr) minmax(0,1.2fr); gap: 64px; }
 .booking-context { align-self: start; }
 .booking-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 40px; }

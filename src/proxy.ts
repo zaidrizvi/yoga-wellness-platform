@@ -19,7 +19,7 @@ export async function proxy(request: NextRequest) {
   });
   const { data: { user } } = await supabase.auth.getUser();
   const path = request.nextUrl.pathname;
-  const protectedPath = path === "/account" || path.startsWith("/account/") || path === "/admin" || path.startsWith("/admin/") || path === "/book" || path.startsWith("/book/") || path === "/update-password";
+  const protectedPath = path === "/account" || path.startsWith("/account/") || path === "/admin" || path.startsWith("/admin/") || path === "/book" || path.startsWith("/book/") || path === "/professional" || path.startsWith("/professional/") || path === "/update-password";
   if (!user && protectedPath) {
     const login = new URL("/login", request.url);
     login.searchParams.set("next", safeRedirect(path + request.nextUrl.search));

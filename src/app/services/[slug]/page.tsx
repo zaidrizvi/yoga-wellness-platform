@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { publishedService, publishedServices, servicePresentation } from "@/lib/data/public";
 import { ServiceDetail } from "@/components/public/service-detail";
 import { pageMetadata } from "@/lib/metadata";
+import { ApprovedOfferings } from "@/components/fulfillment/public-offerings";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -19,5 +20,5 @@ export default async function ServicePage({ params }: Props) {
   if (!row) notFound();
   const service = servicePresentation(row);
   const published = await publishedServices();
-  return <ServiceDetail service={{ ...service, related: service.related.filter(slug => published.some(row => row.slug === slug)) }} />;
+  return <><ServiceDetail service={{ ...service, related: service.related.filter(slug => published.some(row => row.slug === slug)) }} /><ApprovedOfferings slug={row.slug}/></>;
 }

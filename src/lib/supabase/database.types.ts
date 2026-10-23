@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -47,10 +47,157 @@ export type Database = {
         }
         Relationships: []
       }
+      booking_assignments: {
+        Row: {
+          accepted_at: string | null
+          agreed_terms: Json | null
+          booking_id: string
+          completed_at: string | null
+          created_at: string
+          customer_agreed_at: string | null
+          customer_agreed_by: string | null
+          customer_terms_state: string
+          duration_minutes: number
+          duration_source: string
+          ends_at: string
+          id: string
+          idempotency_key: string
+          offering_id: string
+          offering_revision_id: string
+          professional_id: string
+          professional_public_snapshot: Json
+          proposal_actor: string
+          proposal_expires_at: string
+          proposed_terms: Json
+          request_fingerprint: string
+          responded_at: string | null
+          starts_at: string
+          state: string
+          terms_hash: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          agreed_terms?: Json | null
+          booking_id: string
+          completed_at?: string | null
+          created_at?: string
+          customer_agreed_at?: string | null
+          customer_agreed_by?: string | null
+          customer_terms_state?: string
+          duration_minutes: number
+          duration_source: string
+          ends_at: string
+          id?: string
+          idempotency_key: string
+          offering_id: string
+          offering_revision_id: string
+          professional_id: string
+          professional_public_snapshot: Json
+          proposal_actor: string
+          proposal_expires_at: string
+          proposed_terms: Json
+          request_fingerprint: string
+          responded_at?: string | null
+          starts_at: string
+          state?: string
+          terms_hash: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          agreed_terms?: Json | null
+          booking_id?: string
+          completed_at?: string | null
+          created_at?: string
+          customer_agreed_at?: string | null
+          customer_agreed_by?: string | null
+          customer_terms_state?: string
+          duration_minutes?: number
+          duration_source?: string
+          ends_at?: string
+          id?: string
+          idempotency_key?: string
+          offering_id?: string
+          offering_revision_id?: string
+          professional_id?: string
+          professional_public_snapshot?: Json
+          proposal_actor?: string
+          proposal_expires_at?: string
+          proposed_terms?: Json
+          request_fingerprint?: string
+          responded_at?: string | null
+          starts_at?: string
+          state?: string
+          terms_hash?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_assignments_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "booking_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "booking_assignments_offering_id_fkey"
+            columns: ["offering_id"]
+            isOneToOne: false
+            referencedRelation: "professional_offerings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "booking_assignments_offering_revision_id_fkey"
+            columns: ["offering_revision_id"]
+            isOneToOne: false
+            referencedRelation: "professional_offering_revisions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      booking_fulfillment_events: {
+        Row: {
+          actor_user_id: string | null
+          assignment_id: string | null
+          booking_id: string
+          created_at: string
+          event: string
+          id: string
+          new_state: string
+          previous_state: string | null
+          reason: string | null
+        }
+        Insert: {
+          actor_user_id?: string | null
+          assignment_id?: string | null
+          booking_id: string
+          created_at?: string
+          event: string
+          id?: string
+          new_state: string
+          previous_state?: string | null
+          reason?: string | null
+        }
+        Update: {
+          actor_user_id?: string | null
+          assignment_id?: string | null
+          booking_id?: string
+          created_at?: string
+          event?: string
+          id?: string
+          new_state?: string
+          previous_state?: string | null
+          reason?: string | null
+        }
+        Relationships: []
+      }
       booking_requests: {
         Row: {
           address_id: string | null
           address_snapshot: Json
+          cancellation_reason: string | null
+          cancellation_requested_at: string | null
           cancelled_at: string | null
           created_at: string
           customer_id: string
@@ -67,6 +214,8 @@ export type Database = {
         Insert: {
           address_id?: string | null
           address_snapshot: Json
+          cancellation_reason?: string | null
+          cancellation_requested_at?: string | null
           cancelled_at?: string | null
           created_at?: string
           customer_id: string
@@ -83,6 +232,8 @@ export type Database = {
         Update: {
           address_id?: string | null
           address_snapshot?: Json
+          cancellation_reason?: string | null
+          cancellation_requested_at?: string | null
           cancelled_at?: string | null
           created_at?: string
           customer_id?: string
@@ -164,6 +315,222 @@ export type Database = {
         }
         Relationships: []
       }
+      professional_coverage_requests: {
+        Row: {
+          action: string
+          created_at: string
+          feedback: string
+          id: string
+          professional_id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          service_area_id: string
+          state: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          feedback?: string
+          id?: string
+          professional_id: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          service_area_id: string
+          state?: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          feedback?: string
+          id?: string
+          professional_id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          service_area_id?: string
+          state?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professional_coverage_requests_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professional_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "professional_coverage_requests_service_area_id_fkey"
+            columns: ["service_area_id"]
+            isOneToOne: false
+            referencedRelation: "service_areas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      professional_offering_events: {
+        Row: {
+          actor_user_id: string | null
+          coverage_request_id: string | null
+          created_at: string
+          event: string
+          id: string
+          offering_id: string | null
+          professional_id: string
+          reason: string
+          revision_id: string | null
+        }
+        Insert: {
+          actor_user_id?: string | null
+          coverage_request_id?: string | null
+          created_at?: string
+          event: string
+          id?: string
+          offering_id?: string | null
+          professional_id: string
+          reason?: string
+          revision_id?: string | null
+        }
+        Update: {
+          actor_user_id?: string | null
+          coverage_request_id?: string | null
+          created_at?: string
+          event?: string
+          id?: string
+          offering_id?: string | null
+          professional_id?: string
+          reason?: string
+          revision_id?: string | null
+        }
+        Relationships: []
+      }
+      professional_offering_revisions: {
+        Row: {
+          created_at: string
+          currency: string
+          delivery_notes: string
+          description: string
+          duration_minutes: number
+          feedback: string
+          id: string
+          offering_id: string
+          offering_type: string
+          package_duration_unit: string | null
+          package_duration_value: number | null
+          price_minor: number
+          reviewed_at: string | null
+          reviewed_by: string | null
+          revision_number: number
+          sessions_per_week: number | null
+          state: string
+          title: string
+          total_sessions: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          delivery_notes?: string
+          description?: string
+          duration_minutes: number
+          feedback?: string
+          id?: string
+          offering_id: string
+          offering_type: string
+          package_duration_unit?: string | null
+          package_duration_value?: number | null
+          price_minor: number
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          revision_number: number
+          sessions_per_week?: number | null
+          state?: string
+          title: string
+          total_sessions?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          delivery_notes?: string
+          description?: string
+          duration_minutes?: number
+          feedback?: string
+          id?: string
+          offering_id?: string
+          offering_type?: string
+          package_duration_unit?: string | null
+          package_duration_value?: number | null
+          price_minor?: number
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          revision_number?: number
+          sessions_per_week?: number | null
+          state?: string
+          title?: string
+          total_sessions?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professional_offering_revisions_offering_id_fkey"
+            columns: ["offering_id"]
+            isOneToOne: false
+            referencedRelation: "professional_offerings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      professional_offerings: {
+        Row: {
+          approved_revision_id: string | null
+          created_at: string
+          id: string
+          professional_id: string
+          service_id: string
+          suspended: boolean
+          updated_at: string
+        }
+        Insert: {
+          approved_revision_id?: string | null
+          created_at?: string
+          id?: string
+          professional_id: string
+          service_id: string
+          suspended?: boolean
+          updated_at?: string
+        }
+        Update: {
+          approved_revision_id?: string | null
+          created_at?: string
+          id?: string
+          professional_id?: string
+          service_id?: string
+          suspended?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professional_offerings_approved_revision_fkey"
+            columns: ["approved_revision_id"]
+            isOneToOne: false
+            referencedRelation: "professional_offering_revisions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_offerings_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professional_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "professional_offerings_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       professional_profiles: {
         Row: {
           approved_image_reference: string | null
@@ -173,6 +540,7 @@ export type Database = {
           experience_description: string
           public_visible: boolean
           qualifications_description: string
+          specializations: string
           updated_at: string
           user_id: string
         }
@@ -184,6 +552,7 @@ export type Database = {
           experience_description?: string
           public_visible?: boolean
           qualifications_description?: string
+          specializations?: string
           updated_at?: string
           user_id: string
         }
@@ -195,6 +564,7 @@ export type Database = {
           experience_description?: string
           public_visible?: boolean
           qualifications_description?: string
+          specializations?: string
           updated_at?: string
           user_id?: string
         }
@@ -272,6 +642,30 @@ export type Database = {
           },
         ]
       }
+      professional_time_off: {
+        Row: {
+          ends_at: string
+          id: string
+          professional_id: string
+          reason: string
+          starts_at: string
+        }
+        Insert: {
+          ends_at: string
+          id?: string
+          professional_id: string
+          reason?: string
+          starts_at: string
+        }
+        Update: {
+          ends_at?: string
+          id?: string
+          professional_id?: string
+          reason?: string
+          starts_at?: string
+        }
+        Relationships: []
+      }
       professional_verifications: {
         Row: {
           created_at: string
@@ -309,6 +703,30 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
+      }
+      professional_weekly_availability: {
+        Row: {
+          end_time: string
+          id: string
+          iso_weekday: number
+          professional_id: string
+          start_time: string
+        }
+        Insert: {
+          end_time: string
+          id?: string
+          iso_weekday: number
+          professional_id: string
+          start_time: string
+        }
+        Update: {
+          end_time?: string
+          id?: string
+          iso_weekday?: number
+          professional_id?: string
+          start_time?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -479,6 +897,37 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      advance_booking_appointment: {
+        Args: { p_assignment_id: string; p_stage: string }
+        Returns: string
+      }
+      booking_assignment_candidates: {
+        Args: {
+          p_booking_id: string
+          p_duration_minutes?: number
+          p_starts_at?: string
+        }
+        Returns: {
+          display_name: string
+          issue: string
+          professional_id: string
+        }[]
+      }
+      booking_offering_candidates: {
+        Args: { p_booking_id: string; p_starts_at?: string }
+        Returns: {
+          currency: string
+          display_name: string
+          duration_minutes: number
+          issue: string
+          offering_id: string
+          offering_type: string
+          price_minor: number
+          professional_id: string
+          revision_id: string
+          title: string
+        }[]
+      }
       booking_request_options: {
         Args: never
         Returns: {
@@ -489,12 +938,34 @@ export type Database = {
           window_key: string
         }[]
       }
+      cancel_booking_fulfillment: {
+        Args: { p_booking_id: string; p_reason: string }
+        Returns: string
+      }
       cancel_pending_booking_request: {
         Args: { p_booking_id: string }
         Returns: string
       }
       change_user_role: {
         Args: { new_role: string; reason?: string; target_user: string }
+        Returns: undefined
+      }
+      customer_booking_appointment: {
+        Args: { p_booking_id: string }
+        Returns: {
+          assignment_id: string
+          display_name: string
+          ends_at: string
+          experience_description: string
+          professional_id: string
+          qualifications_description: string
+          starts_at: string
+          state: string
+        }[]
+      }
+      customer_booking_offer: { Args: { p_booking_id: string }; Returns: Json }
+      delete_professional_time_off: {
+        Args: { p_id: string }
         Returns: undefined
       }
       ensure_own_profile: {
@@ -512,6 +983,29 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      list_public_offerings: {
+        Args: { p_service_slug?: string }
+        Returns: {
+          currency: string
+          delivery_notes: string
+          description: string
+          display_name: string
+          duration_minutes: number
+          offering_id: string
+          offering_type: string
+          package_duration_unit: string
+          package_duration_value: number
+          price_minor: number
+          professional_id: string
+          revision_id: string
+          service_id: string
+          service_name: string
+          service_slug: string
+          sessions_per_week: number
+          title: string
+          total_sessions: number
+        }[]
       }
       list_public_professionals: {
         Args: never
@@ -531,6 +1025,67 @@ export type Database = {
           status: string
         }[]
       }
+      professional_assignment_details: {
+        Args: { p_assignment_id: string }
+        Returns: {
+          address_details: Json
+          assignment_id: string
+          booking_id: string
+          cancellation_requested: boolean
+          customer_notes: string
+          ends_at: string
+          service_name: string
+          starts_at: string
+          state: string
+        }[]
+      }
+      propose_booking_assignment: {
+        Args: {
+          p_booking_id: string
+          p_duration_minutes?: number
+          p_idempotency_key: string
+          p_professional_id: string
+          p_reason: string
+          p_starts_at: string
+        }
+        Returns: string
+      }
+      propose_booking_offering: {
+        Args: {
+          p_booking_id: string
+          p_idempotency_key: string
+          p_offering_id: string
+          p_reason: string
+          p_revision_id: string
+          p_starts_at: string
+        }
+        Returns: string
+      }
+      refresh_expired_booking_proposals: { Args: never; Returns: undefined }
+      request_booking_cancellation: {
+        Args: { p_booking_id: string; p_reason: string }
+        Returns: string
+      }
+      request_professional_coverage: {
+        Args: { p_remove?: boolean; p_service_area_id: string }
+        Returns: string
+      }
+      resolve_booking_cancellation: {
+        Args: { p_booking_id: string; p_cancel: boolean; p_reason: string }
+        Returns: string
+      }
+      respond_booking_assignment: {
+        Args: { p_accept: boolean; p_assignment_id: string; p_reason?: string }
+        Returns: Json
+      }
+      respond_booking_terms: {
+        Args: {
+          p_accept: boolean
+          p_assignment_id: string
+          p_terms_hash: string
+        }
+        Returns: Json
+      }
       review_professional: {
         Args: {
           make_public: boolean
@@ -542,6 +1097,41 @@ export type Database = {
         }
         Returns: undefined
       }
+      review_professional_coverage: {
+        Args: { p_approve: boolean; p_feedback: string; p_request_id: string }
+        Returns: string
+      }
+      review_professional_offering: {
+        Args: { p_approve: boolean; p_feedback: string; p_revision_id: string }
+        Returns: string
+      }
+      save_professional_offering: {
+        Args: {
+          p_expected_updated_at?: string
+          p_offering_id?: string
+          p_revision_id?: string
+          p_service_id: string
+          p_terms: Json
+        }
+        Returns: string
+      }
+      save_professional_time_off: {
+        Args: {
+          p_ends_at: string
+          p_id?: string
+          p_reason?: string
+          p_starts_at: string
+        }
+        Returns: string
+      }
+      save_weekly_availability: {
+        Args: { p_windows: Json }
+        Returns: undefined
+      }
+      set_professional_offering_suspended: {
+        Args: { p_offering_id: string; p_reason: string; p_suspended: boolean }
+        Returns: string
+      }
       submit_booking_request: {
         Args: {
           p_address_id: string
@@ -551,6 +1141,10 @@ export type Database = {
           p_service_id: string
           p_time_window: string
         }
+        Returns: string
+      }
+      submit_professional_offering: {
+        Args: { p_expected_updated_at: string; p_revision_id: string }
         Returns: string
       }
     }

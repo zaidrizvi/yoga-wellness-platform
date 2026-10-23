@@ -1,0 +1,6 @@
+import { money, indiaTime, type quoteTerms } from "@/lib/fulfillment/validation";
+import type { z } from "zod";
+
+export function QuoteTerms({ terms }: { terms: z.infer<typeof quoteTerms> }) {
+  return <div className="terms-summary"><h3>{terms.title}</h3><p>Professional: {terms.professional_display_name}</p><p>{terms.description}</p><p className="offering-price">{money(terms.price_minor)} {terms.price_basis === "package_total" ? "for the package" : "per session"}</p>{terms.offering_type === "recurring_package" && <p>{terms.total_sessions} total sessions{terms.sessions_per_week ? ` · ${terms.sessions_per_week} per week` : ""} · {terms.package_duration_value} {terms.package_duration_unit?.replaceAll("_", " ")}</p>}<p>{terms.duration_minutes} minutes per visit</p><p><strong>{indiaTime(terms.starts_at)} – {indiaTime(terms.ends_at)}</strong><br />All appointment times are India time (Asia/Kolkata).</p>{terms.outside_preference && <p className="form-error">This appointment is outside your original preference. Accept only if this exact schedule works for you.</p>}{terms.delivery_notes && <p>Delivery / coverage: {terms.delivery_notes}</p>}<p className="booking-help">{terms.scope}</p></div>;
+}
