@@ -31,7 +31,7 @@ describe("public homepage", () => {
       else expect(validRoutes.has(href!.split("#")[0])).toBe(true);
     });
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
-    expect(screen.getByText(/Booking requests are not yet open/)).toBeInTheDocument();
+    expect(screen.getByText(/Booking requests are available/)).toBeInTheDocument();
     expect(screen.getByText(/An appointment is confirmed only after/)).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /book|pay|sign in/i })).not.toBeInTheDocument();
   });

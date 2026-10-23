@@ -27,7 +27,7 @@ for (const width of [375, 768, 1024, 1440]) {
       const links = await page.locator("a").evaluateAll((anchors) => anchors.map((anchor) => anchor.getAttribute("href")!));
       for (const href of links) {
         const target = new URL(href, page.url());
-        expect([...routes, "/login", "/signup", "/account"].includes(target.pathname), `unimplemented link: ${href} on ${route}`).toBe(true);
+        expect([...routes, "/login", "/signup", "/account", "/book/personal-yoga", "/book/naturopathy", "/book/massage-therapy"].includes(target.pathname), `unimplemented link: ${href} on ${route}`).toBe(true);
         if (target.hash && target.pathname === route) await expect(page.locator(target.hash)).toHaveCount(1);
       }
       for (const image of await page.locator("main img").all()) {

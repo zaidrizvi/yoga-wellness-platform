@@ -25,7 +25,7 @@ function CheckEmail({ email, correctEmail }: { email: string; correctEmail: () =
 function SignupFields({ initialEmail, onCorrectEmail }: { initialEmail: string; onCorrectEmail: (email: string) => void }) {
   const [state, action, pending] = useActionState<FormState, FormData>(authenticate, {});
   if (state.confirmationEmail) return <CheckEmail email={state.confirmationEmail} correctEmail={() => onCorrectEmail(state.confirmationEmail!)} />;
-  return <section className="shell account-shell auth-layout"><div><p className="eyebrow">Your Aara account</p><h1>A little space for you.</h1><p>Create your personal account. Booking requests are not yet open.</p></div><div>
+  return <section className="shell account-shell auth-layout"><div><p className="eyebrow">Your Aara account</p><h1>A little space for you.</h1><p>Create your personal account. Booking requests are available for review.</p></div><div>
     <form action={action} className="account-form">
       <input type="hidden" name="mode" value="signup" />
       <label>Full name<input name="full_name" autoComplete="name" required maxLength={120} /></label>

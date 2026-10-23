@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { ArrowUpRight } from "lucide-react";
 import { publishedServices, servicePresentation } from "@/lib/data/public";
 import { PageHero } from "@/components/public/page-hero";
@@ -18,7 +19,7 @@ export default async function ServicesPage() {
       {!serviceCatalog.length && <p>Published services are not currently available. Please check back soon.</p>}
       {serviceCatalog.map((service, i) => <article className="catalog-row" key={service.slug}>
         <EditorialImage {...service.hero} />
-        <div className="catalog-copy"><p className="eyebrow">0{i + 1} / {service.category}</p><h2><Link href={`/services/${service.slug}`}>{service.title}</Link></h2><p className="catalog-subtitle">{service.subtitle}</p><p>{service.description}</p><span className="service-detail">{service.detail}</span><Link className="text-link" href={`/services/${service.slug}`}>Explore {service.title}<ArrowUpRight size={17} aria-hidden="true" /></Link></div>
+        <div className="catalog-copy"><p className="eyebrow">0{i + 1} / {service.category}</p><h2><Link href={`/services/${service.slug}`}>{service.title}</Link></h2><p className="catalog-subtitle">{service.subtitle}</p><p>{service.description}</p><span className="service-detail">{service.detail}</span><Link className="text-link" href={`/services/${service.slug}`}>Explore {service.title}<ArrowUpRight size={17} aria-hidden="true" /></Link><div className="booking-cta"><Button asChild><Link href={`/book/${service.slug}`}>Request a booking</Link></Button></div></div>
       </article>)}
     </section>
     <ProgramFeature /><AppointmentNote />

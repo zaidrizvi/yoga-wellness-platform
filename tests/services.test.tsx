@@ -25,7 +25,7 @@ describe("public service content and routing", () => {
     const element = await ServicePage({ params: Promise.resolve({ slug: "personal-yoga" }) });
     render(element);
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Personal Yoga Training");
-    expect(screen.getByText("Final pricing will be shared before booking requests open.")).toBeInTheDocument();
+    expect(screen.getByText("Pricing has not yet been published. Charges will be confirmed before any appointment.")).toBeInTheDocument();
     expect(screen.getByText("Session duration will be published with confirmed service details.")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Explore Monthly Personal Yoga Programs" })).toHaveAttribute("href", "/yoga-programs");
   });

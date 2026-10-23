@@ -4,7 +4,7 @@ export const services = offerings.map((offering, i) => ({ ...offering, number: S
 
 export const steps = [
   { title: "Find your kind of wellness", description: "Explore the services and choose what fits your goals and everyday life." },
-  { title: "Share the details", description: "When booking opens, share your preferred schedule and home location in a booking request." },
+  { title: "Share the details", description: "Share your preferred schedule and home location in a booking request." },
   { title: "Let us coordinate", description: "The team will review availability and assign a suitable professional. Your appointment is confirmed only after assignment and confirmation." },
 ] as const;
 
