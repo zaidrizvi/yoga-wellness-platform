@@ -75,6 +75,12 @@ Official integration reference: [Supabase SSR client and proxy guidance](https:/
 
 Focused auth UX update: 36 relevant tests passed across login/signup actions, confirmation/recovery callbacks, protected-request redirects/cookie preservation, and the prominent signup confirmation screen; TypeScript passed. Supabase responses were mocked for these checks; no live email requests or hosted setting changes were made.
 
+## Professional onboarding enhancement ? approval pending
+
+The dedicated applicant workflow needs one additive migration because existing private credential uploads require the professional role. [Review the complete proposed SQL](supabase/migrations/20261024012000_professional_applications.sql) and [onboarding checkpoint](supabase/PROFESSIONAL_ONBOARDING_HANDOFF.md). Focused grammar/permission checks and one dry run passed; only this file is pending on `nubblifjxikhpdvkgztt`. Nothing was deployed. Application screens, dedicated dashboard and role-aware login integration resume after explicit approval; existing Phase 4B functionality is preserved.
+
+The separately approved first-administrator bootstrap has now been completed for the designated account. Do not repeat it.
+
 ## Phase 4B deployment and role interfaces (24 October 2026)
 
 **Both approved migrations are deployed** to development project `nubblifjxikhpdvkgztt`: `20261023101357_booking_fulfillment.sql`, followed by `20261024002611_professional_offerings_and_agreements.sql`. The dry run listed only those files; application succeeded. Hosted history, eight new RLS-enabled tables, booking/offering functions, customer-agreement check, overlap exclusion and one-active-assignment index were confirmed. Applied migrations and customer records were preserved.
@@ -90,7 +96,7 @@ Customer agreement precedes professional acceptance. Approved revisions and agre
 
 **Verification passed:** TypeScript, ESLint, 21 focused unit/component/action tests, production build and two focused browser checks (375px/1440px). Hosted anonymous denial probes and read-only customer JWT-context ownership/role checks passed. Catalog checks confirm booking constraints; they do not prove concurrent runtime behavior.
 
-**Authenticated operational acceptance remains pending:** hosted data currently has no admin/professional role accounts, approved offerings or active assignments. The separate `zaidd.rizvii@gmail.com` account remains a customer. Its prepared secure bootstrap still needs separate explicit approval; migration approval did not authorize promotion. No accounts were created or promoted. Trainer-to-trainer isolation, private Storage acceptance, genuine agreement/fulfillment transitions and simultaneous booking conflicts remain unverified with legitimate operational accounts. Phase 4B code is implemented and ready for that acceptance; Phase 5 should wait for it.
+**Authenticated operational acceptance remains pending:** the original Phase 4B snapshot had no admin/professional role accounts, approved offerings or active assignments. The separately approved bootstrap subsequently promoted only `zaidd.rizvii@gmail.com` to administrator; its audit and preservation checks passed. Do not repeat bootstrap. A legitimate professional and genuine approved coverage/offerings are still needed. Trainer-to-trainer isolation, private Storage acceptance, genuine agreement/fulfillment transitions and simultaneous booking conflicts remain unverified with legitimate operational accounts. Phase 4B code is implemented and ready for that acceptance; Phase 5 should wait for it.
 
 See [the complete Phase 4B handoff](supabase/PHASE_4B_HANDOFF.md) for route behavior, actual checks, limitations and remaining acceptance. Nothing was pushed to GitHub.
 
