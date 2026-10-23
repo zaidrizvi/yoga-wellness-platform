@@ -9,13 +9,19 @@ import { serviceCatalog } from "@/content/services";
 
 vi.mock("next/navigation", () => ({ usePathname: () => "/" }));
 
-function PublicHome() {
-  return <><Header /><main id="main"><Home /></main><Footer /></>;
+vi.mock("@/components/layout/auth-navigation", () => ({ AuthNavigation: () => null }));
+
+vi.mock("@/lib/data/public", () => ({
+  publishedServices: vi.fn(async () => serviceCatalog),
+  servicePresentation: (row: unknown) => row,
+}));
+async function publicHome() {
+  return <><Header /><main id="main">{await Home()}</main><Footer /></>;
 }
 
 describe("public homepage", () => {
-  it("provides real destinations for every link without offering a booking flow", () => {
-    const { container } = render(<PublicHome />);
+  it("provides real destinations for every link without offering a booking flow", async () => {
+    const { container } = render(await publicHome());
     const validRoutes = new Set([...navigation.map((link) => link.href), ...serviceCatalog.map((service) => `/services/${service.slug}`)]);
     const links = screen.getAllByRole("link");
     expect(links.length).toBeGreaterThan(10);
@@ -32,7 +38,7 @@ describe("public homepage", () => {
 
   it("opens the mobile menu, closes on selection, and restores focus after Escape", async () => {
     const user = userEvent.setup();
-    render(<PublicHome />);
+    render(await publicHome());
     const trigger = screen.getByRole("button", { name: "Open navigation" });
     await user.click(trigger);
     expect(screen.getByRole("dialog")).toBeInTheDocument();

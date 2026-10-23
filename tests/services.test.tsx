@@ -1,15 +1,20 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import ServicesPage from "@/app/services/page";
-import ServicePage, { generateMetadata, generateStaticParams } from "@/app/services/[slug]/page";
+import ServicePage, { generateMetadata } from "@/app/services/[slug]/page";
 import YogaProgramsPage from "@/app/yoga-programs/page";
 import { getService, serviceCatalog } from "@/content/services";
 
+vi.mock("@/lib/data/public", () => ({
+  publishedServices: vi.fn(async () => serviceCatalog),
+  publishedService: vi.fn(async (slug: string) => getService(slug) ?? null),
+  servicePresentation: (row: unknown) => row,
+}));
 vi.mock("next/navigation", () => ({ notFound: () => { throw new Error("NEXT_NOT_FOUND"); } }));
 
 describe("public service content and routing", () => {
-  it("renders the catalog with working links for all initial services and monthly yoga", () => {
-    render(<ServicesPage />);
+  it("renders the catalog with working links for all initial services and monthly yoga", async () => {
+    render(await ServicesPage());
     serviceCatalog.forEach((service) => {
       expect(screen.getByRole("link", { name: `Explore ${service.title}` })).toHaveAttribute("href", `/services/${service.slug}`);
     });
@@ -17,7 +22,6 @@ describe("public service content and routing", () => {
   });
 
   it("prepares the known slugs and renders detail content without invented commercial terms", async () => {
-    expect(generateStaticParams()).toHaveLength(3);
     const element = await ServicePage({ params: Promise.resolve({ slug: "personal-yoga" }) });
     render(element);
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Personal Yoga Training");
@@ -51,5 +55,19 @@ describe("public service content and routing", () => {
     expect(screen.getByText(/Not finalized packages/)).toBeInTheDocument();
     expect(screen.getByText(/does not imply recurring billing or automatic renewal/)).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /subscribe|purchase|buy/i })).not.toBeInTheDocument();
+  });
+});
+
+// These tests exercise application handling with mocked database responses, not hosted RLS.
+describe("database availability and publication handling", () => {
+  it("returns 404 for an unpublished record", async () => {
+    const { publishedService } = await import("@/lib/data/public");
+    vi.mocked(publishedService).mockResolvedValueOnce(null);
+    await expect(ServicePage({ params: Promise.resolve({ slug: "personal-yoga" }) })).rejects.toThrow("NEXT_NOT_FOUND");
+  });
+  it("keeps database failures distinct from 404", async () => {
+    const { publishedService } = await import("@/lib/data/public");
+    vi.mocked(publishedService).mockRejectedValueOnce(new Error("Database unavailable"));
+    await expect(ServicePage({ params: Promise.resolve({ slug: "personal-yoga" }) })).rejects.toThrow("Database unavailable");
   });
 });
