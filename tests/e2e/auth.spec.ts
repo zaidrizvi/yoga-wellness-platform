@@ -12,12 +12,13 @@ for (const width of [375, 1440]) {
     await page.screenshot({ path: testInfo.outputPath(`recovery-${width}.png`), fullPage: true });
     for (const route of ["/account", "/account/professional", "/admin/professionals", "/admin/services", "/update-password"]) {
       await page.goto(route);
-      await expect(page).toHaveURL(/\/login$/);
+      expect(new URL(page.url()).pathname).toBe("/login");
+      expect(new URL(page.url()).searchParams.get("next")).toBe(route);
     }
     await page.goto("/auth/confirm");
     await expect(page.getByRole("main").getByRole("alert")).toContainText("invalid or expired");
     await page.goto("/login?next=https://evil.example");
-    await expect(page.locator('input[name="next"]')).toHaveValue("/account");
+    await expect(page.locator('input[name="next"]')).toHaveValue("/");
     await page.goto("/signup");
     await expect(page.locator('input[name="role"]')).toHaveCount(0);
     await page.screenshot({ path: testInfo.outputPath(`signup-${width}.png`), fullPage: true });

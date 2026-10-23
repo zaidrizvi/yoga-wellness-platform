@@ -563,3 +563,10 @@ h2 em { color: #587053; }
 .auth-navigation button { background: transparent; color: var(--primary); padding: 4px; min-height: 44px; font-size: 12px; }
 @media (max-width: 1200px) { .site-header { flex-wrap: wrap; gap: 12px; padding-block: 16px; } .auth-navigation { margin-left: auto; } }
 @media (max-width: 767px) { .auth-layout { grid-template-columns: 1fr; gap: 24px; } .account-shell { padding-block: 40px 64px; } .directory-grid { grid-template-columns: 1fr; } .auth-navigation { gap: 10px; } .auth-navigation > a { font-size: 12px; } }
+
+.check-email { max-width: 760px; min-height: 70vh; text-align: center; }
+.check-email p { margin-inline: auto; }
+.check-email-icon { display: grid; place-items: center; width: 96px; height: 96px; margin: 0 auto 28px; border: 1px solid var(--border); border-radius: 50%; background: var(--secondary); color: var(--primary); }
+.check-email .account-links { justify-content: center; }
+.check-email .confirmation-email { color: var(--primary); overflow-wrap: anywhere; }
+.check-email .check-email-note { font-size: 13px; color: var(--muted-foreground); }

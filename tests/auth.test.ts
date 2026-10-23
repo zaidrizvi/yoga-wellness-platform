@@ -33,7 +33,7 @@ function client(role = "customer", authenticated = true) {
 beforeEach(() => { vi.clearAllMocks(); vi.unstubAllEnvs(); });
 
 describe("redirect protection", () => {
-  it.each(["https://evil.example", "//evil.example", "/\\evil.example", "/%2fexample", "/%5cexample", "/a/..//evil.example", "/%252f%252fevil", "/%0aevil", "%", "javascript:alert(1)"])("rejects %s", value => expect(safeRedirect(value)).toBe("/account"));
+  it.each(["https://evil.example", "//evil.example", "/\\evil.example", "/%2fexample", "/%5cexample", "/a/..//evil.example", "/%252f%252fevil", "/%0aevil", "%", "javascript:alert(1)"])("rejects %s", value => expect(safeRedirect(value)).toBe("/"));
   it("preserves an internal destination", () => expect(safeRedirect("/account?notice=saved")).toBe("/account?notice=saved"));
 });
 
@@ -79,12 +79,34 @@ describe("server identity and authorization (mocked Supabase)", () => {
   });
   it("login invokes Auth and rejects an external redirect", async () => {
     const c = client();
-    await expect(authenticate({}, form({ mode: "login", email: "person@example.com", password: "correct-password", next: "//evil.example" }))).rejects.toThrow("REDIRECT:/account");
+    await expect(authenticate({}, form({ mode: "login", email: "person@example.com", password: "correct-password", next: "//evil.example" }))).rejects.toThrow("REDIRECT:/");
     expect(c.auth.signInWithPassword).toHaveBeenCalledWith({ email: "person@example.com", password: "correct-password" });
   });
   it("recovery responses do not reveal registration", async () => {
     client(); vi.stubEnv("NEXT_PUBLIC_SITE_URL", "http://localhost:3000");
     const result = await authenticate({}, form({ mode: "recovery", email: "person@example.com" }));
     expect(result.success).toMatch(/If this address/); expect(result.error).toBeUndefined();
+  });
+});
+
+describe("focused login and signup destinations (mocked Supabase)", () => {
+  it.each([undefined, "/account/professional?tab=profile"])("login destination: %s", async next => {
+    client();
+    await expect(authenticate({}, form({ mode: "login", email: "person@example.com", password: "correct-password", ...(next ? { next } : {}) }))).rejects.toThrow(`REDIRECT:${next ?? "/"}`);
+  });
+  it("returns confirmation state only after signup is accepted", async () => {
+    const c = client(); vi.stubEnv("NEXT_PUBLIC_SITE_URL", "http://localhost:3001");
+    c.auth.signUp.mockResolvedValue({ data: { user: { id: "new-user" }, session: null }, error: null });
+    const result = await authenticate({}, form({ mode: "signup", full_name: "A customer", email: "person@example.com", password: "a-valid-password", confirmation: "a-valid-password" }));
+    expect(result).toEqual({ confirmationEmail: "person@example.com" });
+    expect(c.rpc).not.toHaveBeenCalled();
+    expect(mocks.redirect).not.toHaveBeenCalled();
+  });
+  it("keeps rate-limited signup in an honest error state", async () => {
+    const c = client(); vi.stubEnv("NEXT_PUBLIC_SITE_URL", "http://localhost:3001");
+    c.auth.signUp.mockResolvedValue({ data: { user: null, session: null }, error: { status: 429 } });
+    const result = await authenticate({}, form({ mode: "signup", full_name: "A customer", email: "person@example.com", password: "a-valid-password", confirmation: "a-valid-password" }));
+    expect(result.error).toMatch(/Too many registration attempts/);
+    expect(result.confirmationEmail).toBeUndefined();
   });
 });

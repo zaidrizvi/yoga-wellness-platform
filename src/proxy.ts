@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSupabaseConfig } from "@/lib/supabase/env";
 import type { Database } from "@/lib/supabase/database.types";
+import { safeRedirect } from "@/lib/auth/redirect";
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -16,7 +17,17 @@ export async function proxy(request: NextRequest) {
       },
     },
   });
-  await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
+  const path = request.nextUrl.pathname;
+  const protectedPath = path === "/account" || path.startsWith("/account/") || path === "/admin" || path.startsWith("/admin/") || path === "/update-password";
+  if (!user && protectedPath) {
+    const login = new URL("/login", request.url);
+    login.searchParams.set("next", safeRedirect(path + request.nextUrl.search));
+    const redirected = NextResponse.redirect(login);
+    response.cookies.getAll().forEach(cookie => redirected.cookies.set(cookie));
+    redirected.headers.set("Cache-Control", "private, no-store");
+    return redirected;
+  }
   response.headers.set("Cache-Control", "private, no-store");
   return response;
 }

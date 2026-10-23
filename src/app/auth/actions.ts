@@ -37,14 +37,15 @@ export async function authenticate(_: FormState, form: FormData): Promise<FormSt
     if (!name.success || parsed.data.password !== form.get("confirmation")) return { error: "Enter your name and matching passwords." };
     const origin = getSiteUrl();
     if (!origin) return { error: "Registration email is temporarily unavailable. Please try again later." };
-    const { data, error } = await supabase.auth.signUp({ ...parsed.data, options: { data: { full_name: name.data }, emailRedirectTo: new URL("/auth/confirm", origin).href } });
-    if (error) return { error: "Registration could not be completed. Try again later, or sign in if you already have an account." };
+    const { data, error } = await supabase.auth.signUp({ ...parsed.data, options: { data: { full_name: name.data }, emailRedirectTo: new URL("/auth/confirm?next=/", origin).href } });
+    if (error) return { error: error.status === 429 || error.code === "over_email_send_rate_limit" ? "Too many registration attempts. Please wait before trying again. You can also sign in if you already have an account." : "Registration could not be completed. Try again later, or sign in if you already have an account." };
     if (data.session) {
       // The database trigger creates the role. Profile enrichment is retryable.
       await supabase.rpc("ensure_own_profile", { new_full_name: name.data });
-      redirect("/account");
+      redirect("/");
     }
-    return { success: "Check your email for confirmation instructions. If you already have an account, use Login or Forgot password." };
+    if (!data.user) return { error: "Registration could not be confirmed. Please try again later." };
+    return { confirmationEmail: parsed.data.email };
   }
   if (mode !== "login") return { error: "Invalid request." };
   const { error } = await supabase.auth.signInWithPassword(parsed.data);

@@ -17,7 +17,7 @@ export async function currentAccount() {
 
 export async function requireAccount(role?: Role) {
   const account = await currentAccount();
-  if (!account) redirect("/login");
+  if (!account) redirect("/login?next=%2Faccount");
   if (role && account.role !== role) redirect("/account?notice=restricted");
   return account;
 }

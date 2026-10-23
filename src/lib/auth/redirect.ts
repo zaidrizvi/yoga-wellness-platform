@@ -1,5 +1,5 @@
 // Decode before checking: browsers normalize encoded slashes and backslashes.
-export function safeRedirect(value: unknown, fallback = "/account"): string {
+export function safeRedirect(value: unknown, fallback = "/"): string {
   if (typeof value !== "string") return fallback;
   try {
     const decoded = decodeURIComponent(value);

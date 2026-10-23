@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     success = !error;
   }
-  const path = success ? safeRedirect(params.get("next"), type === "recovery" ? "/update-password" : "/account") : "/login?notice=invalid-link";
+  const path = success ? (type === "recovery" ? "/update-password" : safeRedirect(params.get("next"))) : "/login?notice=invalid-link";
   const response = NextResponse.redirect(new URL(path, request.url));
   response.headers.set("Cache-Control", "private, no-store");
   response.headers.set("Referrer-Policy", "no-referrer");

@@ -52,7 +52,7 @@ In Supabase Auth URL Configuration, set the Site URL and allow the exact callbac
 For cross-device email confirmation, use this confirmation-email template link:
 
 ```html
-<a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next=/account">Confirm email</a>
+<a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next=/">Confirm email</a>
 ```
 
 For password recovery use:
@@ -61,7 +61,7 @@ For password recovery use:
 <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/update-password">Reset password</a>
 ```
 
-Configure templates per environment's Site URL. The callback also accepts PKCE `code` links using the initiating browser's verifier cookie. Never paste tokens/reset links into logs or source. Invalid/expired links show a safe recovery message. The reset-request response does not reveal whether an address is registered. Signup accepts no role; the existing Auth trigger creates the customer role. Profile enrichment uses retryable `ensure_own_profile()` separately, with an explicit retry path on the account page.
+Configure templates per environment's Site URL. The callback also accepts PKCE `code` links using the initiating browser's verifier cookie. Never paste tokens/reset links into logs or source. Invalid/expired links show a safe recovery message. The reset-request response does not reveal whether an address is registered. Login and email confirmation default to the homepage; validated explicit internal `next` destinations are preserved. Protected-page visits carry their destination through login. Recovery links continue to `/update-password`. If your hosted confirmation email template still hardcodes `next=/account`, manually change it to `next=/` as shown above; existing explicit links retain their requested destination. Accepted signup requiring verification replaces the form with a prominent Check your inbox screen, displays the submitted email only in page state, and offers correction/login without automatic email requests. Acceptance does not claim delivery. Signup accepts no role; the existing Auth trigger creates the customer role. Profile enrichment uses retryable `ensure_own_profile()` separately, with an explicit retry path on the account page.
 
 Personal accounts edit only name/phone. Professional accounts edit the four permitted descriptive fields while pending/rejected and view their restricted verification status and approved service associations. Verified/suspended profiles remain locked until an administrator reopens review.
 
@@ -72,6 +72,8 @@ Public service queries explicitly require active published services and active c
 Actual database types were generated from the hosted public schema into `src/lib/supabase/database.types.ts`. No deployed migration was modified. No schema migration is proposed for 3B. Future Phase 5 payments will use business UPI QR with administrator verification, not Razorpay; no payment implementation is included here.
 
 Official integration reference: [Supabase SSR client and proxy guidance](https://supabase.com/docs/guides/auth/server-side/creating-a-client).
+
+Focused auth UX update: 36 relevant tests passed across login/signup actions, confirmation/recovery callbacks, protected-request redirects/cookie preservation, and the prominent signup confirmation screen; TypeScript passed. Supabase responses were mocked for these checks; no live email requests or hosted setting changes were made.
 
 ## Phase 3B verification and handoff (23 October 2026)
 
