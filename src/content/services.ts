@@ -3,7 +3,7 @@ export type FaqItem = { question: string; answer: string };
 export type EditorialAsset = { src: string; alt: string; caption: string };
 
 export type Service = {
-  slug: ServiceSlug;
+  slug: string;
   title: string;
   subtitle: string;
   description: string;
