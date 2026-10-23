@@ -47,6 +47,123 @@ export type Database = {
         }
         Relationships: []
       }
+      booking_requests: {
+        Row: {
+          address_id: string | null
+          address_snapshot: Json
+          cancelled_at: string | null
+          created_at: string
+          customer_id: string
+          customer_notes: string
+          id: string
+          idempotency_key: string
+          preferred_date: string
+          service_id: string
+          service_name: string
+          status: string
+          time_window: string
+          updated_at: string
+        }
+        Insert: {
+          address_id?: string | null
+          address_snapshot: Json
+          cancelled_at?: string | null
+          created_at?: string
+          customer_id: string
+          customer_notes?: string
+          id?: string
+          idempotency_key: string
+          preferred_date: string
+          service_id: string
+          service_name: string
+          status?: string
+          time_window: string
+          updated_at?: string
+        }
+        Update: {
+          address_id?: string | null
+          address_snapshot?: Json
+          cancelled_at?: string | null
+          created_at?: string
+          customer_id?: string
+          customer_notes?: string
+          id?: string
+          idempotency_key?: string
+          preferred_date?: string
+          service_id?: string
+          service_name?: string
+          status?: string
+          time_window?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_requests_address_id_fkey"
+            columns: ["address_id"]
+            isOneToOne: false
+            referencedRelation: "customer_addresses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "booking_requests_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_addresses: {
+        Row: {
+          address_line_1: string
+          address_line_2: string
+          city: string
+          created_at: string
+          customer_id: string
+          id: string
+          label: string
+          landmark: string
+          locality: string
+          phone: string
+          postal_code: string
+          recipient_name: string
+          state: string
+          updated_at: string
+        }
+        Insert: {
+          address_line_1: string
+          address_line_2?: string
+          city: string
+          created_at?: string
+          customer_id?: string
+          id?: string
+          label: string
+          landmark?: string
+          locality: string
+          phone: string
+          postal_code: string
+          recipient_name: string
+          state: string
+          updated_at?: string
+        }
+        Update: {
+          address_line_1?: string
+          address_line_2?: string
+          city?: string
+          created_at?: string
+          customer_id?: string
+          id?: string
+          label?: string
+          landmark?: string
+          locality?: string
+          phone?: string
+          postal_code?: string
+          recipient_name?: string
+          state?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       professional_profiles: {
         Row: {
           approved_image_reference: string | null
@@ -362,6 +479,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      booking_request_options: {
+        Args: never
+        Returns: {
+          booking_horizon_days: number
+          end_time: string
+          label: string
+          start_time: string
+          window_key: string
+        }[]
+      }
+      cancel_pending_booking_request: {
+        Args: { p_booking_id: string }
+        Returns: string
+      }
       change_user_role: {
         Args: { new_role: string; reason?: string; target_user: string }
         Returns: undefined
@@ -410,6 +541,17 @@ export type Database = {
           target_user: string
         }
         Returns: undefined
+      }
+      submit_booking_request: {
+        Args: {
+          p_address_id: string
+          p_customer_notes?: string
+          p_idempotency_key: string
+          p_preferred_date: string
+          p_service_id: string
+          p_time_window: string
+        }
+        Returns: string
       }
     }
     Enums: {
