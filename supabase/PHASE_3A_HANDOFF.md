@@ -1,60 +1,40 @@
-# Phase 3A — pending database foundation
+# Phase 3A - hosted foundation verified
 
-## Simplified remaining workflow (latest instruction)
+## Current status - 23 October 2026
 
-One focused source review of the existing three migrations found no obvious critical privilege-escalation, private-data-exposure, or RLS defect. There are no destructive table drops, resets, or data wipes. The review checked fixed definer search paths, explicit function execution grants, closed anonymous table access, current database role checks, the single public listing projection, private verification notes, and owner/current-role Storage policies. This is source review, not executed database verification. No SQL or application code was changed during this review.
+Target: `yoga-wellness-platform` (`nubblifjxikhpdvkgztt`), PostgreSQL 17.11. The preceding live check confirmed `ACTIVE_HEALTHY`, working PostgreSQL connections, and all three migration versions present remotely. Its dry run returned `upToDate: true` with no migrations, seeds, or roles pending. This supersedes earlier statements that the database was empty or migrations were pending. The deployment actor/time was not established; this session did not deploy or modify hosted data.
 
-Use the **existing hosted project for development only after checking for valuable data**. The verified target is `yoga-wellness-platform` (`nubblifjxikhpdvkgztt`), PostgreSQL 17.11, matching the configured application hostname. Authenticated read-only preflight found zero Auth users, zero Storage objects/buckets, no public tables/views, no private schema, and no Storage object policies. No existing application data or naming/policy conflicts were detected in these checks. Do not reset, delete, or overwrite anything to make a project appear empty.
+One focused hosted verification used the Supabase CLI Management API query workflow with explicit project targeting, read-only transactions, catalog queries, and `SET LOCAL ROLE anon` access checks. No test users, records, uploads, schema changes, or destructive fixtures were created. No frontend checks, dry run, or full pgTAP suite were repeated during this verification.
 
-Prepare the dry run with the already-created migration files:
+## Actual hosted verification results
 
-```text
-npx.cmd --no-install supabase migration list --project-ref nubblifjxikhpdvkgztt
-npx.cmd --no-install supabase db push --project-ref nubblifjxikhpdvkgztt --dry-run
-```
+| Check | Result | Evidence and limits |
+| --- | --- | --- |
+| Ten expected tables exist | PASS | All ten table names in the contract below resolve in the hosted catalog |
+| RLS enabled on all ten | PASS | `pg_class.relrowsecurity` is true for every expected table |
+| Role/verification functions exist | PASS | Role helpers, initialization/guards, `ensure_own_profile`, `change_user_role`, `review_professional`, `own_professional_verification`, and `list_public_professionals` exist; inspected definer functions are owned by `postgres` with empty search paths; internal mutation helpers are not executable by anon/authenticated |
+| Private document bucket/policies | PASS (configuration) | `professional-documents` has `public=false`, 10 MiB limit, PDF/JPEG/PNG allowlist; expected SELECT/INSERT/DELETE policies exist, restricted to authenticated current-role/owner or admin access; no other Storage object policies returned |
+| Anonymous sensitive-table reads | PASS (database runtime) | Actual `anon` SELECT attempts with LIMIT 0 on profiles, user_roles, professional_profiles, professional_verifications each failed with SQLSTATE 42501 permission denied; catalog also confirms no table or column SELECT privileges |
+| Approved public listing path | PASS (configuration and invocation) | Hosted function definition requires professional role, verified status, public visibility, nondeleted and nonbanned Auth account; returns only the six approved public fields. Anon execution succeeded. No public views or anonymous direct sensitive-table access found. Current website remains static; application integration belongs to 3B |
+| Anonymous Storage metadata query | PASS (limited runtime) | Read-only anon query for this bucket returned zero visible metadata rows; this alone does not prove denial against populated foreign documents |
+| Authenticated customer isolation / self-promotion denial | UNVERIFIED | No controlled authenticated accounts used; policies/function existence does not prove behavior |
+| Professional verification/suspension transitions | UNVERIFIED | Hosted eligibility predicate confirmed, but no account state changed or fixtures created |
+| Storage owner/admin isolation, HTTP upload limits, signed URLs | UNVERIFIED | Catalog configuration inspected; no uploads, documents, or authenticated API tests |
+| Last-admin/concurrency/signup-trigger behavior | UNVERIFIED | No mutation or concurrency tests executed |
 
-The dry run succeeded: it would apply exactly the three migration files listed below, with no seed files or role files. Remote migration history has no applied application migrations and no migration-history table was present in the read-only preflight. The local link file is absent, so supported explicit `--project-ref` targeting was used. Obtain **explicit deployment approval** before executing a real push. Approval to review SQL does not itself authorize deployment. No GitHub push is authorized.
+No critical blocker was found in these focused checks. Phase 3A is complete enough to begin Master Prompt 3B development, with the explicit runtime limitations above. This is not production security certification. Phase 3B was not started.
 
-Following deployment approval and application, perform only a few essential checks on this verified development database: (1) anonymous private-table denial/public listing projection, (2) customer isolation/default role and failed privilege escalation, (3) professional self-verification denial plus immediate public exclusion after suspension, and (4) private document bucket and owner/current-role access restrictions. Use actual Supabase roles/context and transaction-rolled-back temporary fixtures where needed; do not commit fake users or documents. Report any critical failures, permit at most two targeted repair/retest cycles, and stop. Do not add test files, run the full existing pgTAP suite as a new release gate, install Docker, create another harness, or rerun passing frontend checks.
+## Applied migration source
 
-This simplified workflow supersedes the earlier requirement to wait for the entire local pgTAP/concurrency suite before moving toward 3B. Existing test files remain available but unexecuted; unavailable local Supabase tests remain **blocked**. The detailed schema/security contract and 3B freshness requirements below remain applicable.
+Remote history already records these versions; retain the files unchanged:
 
-Implemented locally on 13 October 2026. **Not deployed, not approved for deployment, and not verified on hosted Supabase.** The public website and existing Supabase application utilities remain unchanged. This is a database contract for 3B, not a live backend.
+1. [20261013154854_initial_schema.sql](migrations/20261013154854_initial_schema.sql)
+2. [20261013154856_security_policies.sql](migrations/20261013154856_security_policies.sql)
+3. [20261013154859_storage_and_initial_service_data.sql](migrations/20261013154859_storage_and_initial_service_data.sql)
 
-## Environment and verification
+## Historical evidence and remaining limits
 
-Supabase CLI 2.120.0 is available. Local configuration uses PostgreSQL 17 and exposes only `public` and `graphql_public`; `private` is excluded. Docker/Podman are unavailable and nothing is listening on the configured local database port. No additional service troubleshooting was attempted after that was established.
-
-Initial checks had no local project link and unavailable public REST probes. Subsequent authenticated CLI inspection identified the existing project, verified its match to configured hostname fingerprint `59e62f46421f`, inspected counts/schema metadata, listed empty remote migration history, and completed the explicit-target dry run successfully. Credentials and configured values were not printed. No migration SQL, reset, migration repair, account change, Storage upload, or application configuration mutation was executed on the hosted project. Read-only preflight SQL was executed through the supported CLI Management API query command.
-
-| Check | Actual result |
-| --- | --- |
-| PostgreSQL outer SQL parsing and static access contracts | Pass; all three migrations and five pgTAP files parsed |
-| PL/pgSQL compilation and execution against Supabase | Blocked |
-| Local migration application | Blocked |
-| pgTAP, RLS, escalation, signup-trigger, and Storage policy behavior | Blocked; tests written, not executed |
-| Two-session concurrency | Blocked; not independently tested |
-| Hosted target/counts/history preflight and migration dry run | Pass; three pending migrations, no application data detected, no migrations applied |
-| Storage HTTP MIME/size enforcement and signed URL behavior | Blocked; only configuration/policy source reviewed |
-| TypeScript | Pass |
-| ESLint | Pass, no warnings |
-| Vitest | Pass, 9 existing tests |
-| Production build | Pass |
-| Playwright public regression | Pass, 7 existing tests across nine routes and four widths |
-
-SQL parsing is independent validation, **not proof of migration execution or Supabase RLS correctness**. `pgsql-parser` parses outer SQL; function bodies, object dependencies, privileges, native Auth behavior, and Storage APIs still need the real stack. No generic PostgreSQL harness is used. No quality or security checks were disabled. Existing five development-only ESLint advisory findings remain unchanged.
-
-## Complete SQL for review
-
-Review these source files in order; they are the complete pending SQL, not excerpts:
-
-1. [20261013154854_initial_schema.sql](migrations/20261013154854_initial_schema.sql) — ten tables, constraints, indexes, immediate RLS, and revoked client privileges.
-2. [20261013154856_security_policies.sql](migrations/20261013154856_security_policies.sql) — authoritative roles, signup initialization, lazy profile initialization, locked role/review operations, audit triggers, public listing contract, column grants, and RLS.
-3. [20261013154859_storage_and_initial_service_data.sql](migrations/20261013154859_storage_and_initial_service_data.sql) — private document bucket/policies, three real service categories, and the three stable initial service slugs. No invented prices or durations.
-
-Filenames were created by `supabase migration new`. None has been applied locally or remotely. The existing local migration history could not be queried because the local database is absent; no pre-existing migration files were present. Do not rewrite these files after they are applied: create subsequent migrations instead.
-
-There are no table drops, remote resets, or destructive production seeds. Sensitive changes include application triggers on `auth.users`, definer functions owned by the trusted migration executor, role backfill for existing real Auth users, publication of informational service records, and creation of a private Storage bucket. These require review against existing hosted objects before approval. A naming collision fails rather than silently overwriting existing objects. Synthetic accounts occur only in transaction-rolled-back test fixtures. `seed.sql` intentionally contains no sample data.
+Earlier source review found no material destructive operation, privilege escalation, private-data exposure, critical RLS defect, unsafe administrator function, or dangerous Storage access. No SQL correction was required. SQL parsing and frontend TypeScript/ESLint/nine unit tests/build/seven Playwright tests were historically reported passing; none was rerun for this focused verification. Five pgTAP files exist but remain unexecuted. Local Supabase execution was historically blocked by unavailable container services; no Docker setup or troubleshooting was attempted here. Local migration application remains unverified and is distinct from the confirmed hosted migration history.
 
 ## Tables and relationships
 
@@ -79,7 +59,7 @@ Timestamps use `timestamptz`. 3B should display them in `Asia/Kolkata`. No appoi
 
 **One public professional path.** `public.list_public_professionals()` is the single authoritative public eligibility function. No professional view or public `SELECT` policy exists. `anon` has no table privileges on `professional_profiles`, `professional_verifications`, `user_roles`, or `profiles`. Both `anon` and `authenticated` may execute the parameterless listing function, which returns only professional ID, display name, biography, public qualifications, experience, and an administrator-approved image reference. It never returns phone numbers, notes, documents, or Auth metadata.
 
-The function joins current role, verification, profile visibility, and Auth account state. It requires role `professional`, status `verified`, `public_visible`, no `auth.users.deleted_at`, and no current `banned_until`. Missing verification fails closed. No additional eligibility columns are invented. A new query after suspension, hiding, demotion, ban, or deletion excludes the record. Auth field names were checked against the official Supabase Auth user model; actual hosted schema compatibility is still unverified.
+The function joins current role, verification, profile visibility, and Auth account state. It requires role `professional`, status `verified`, `public_visible`, no `auth.users.deleted_at`, and no current `banned_until`. Missing verification fails closed. No additional eligibility columns are invented. A new query after suspension, hiding, demotion, ban, or deletion excludes the record. Auth field names were checked against the official Supabase Auth user model; the hosted listing function was successfully invoked under the anon database role on 23 October 2026; state-transition behavior remains unverified.
 
 **Current database roles.** `private.has_role()` and `private.is_admin()` read PostgreSQL, not editable metadata or stale custom JWT roles. Missing roles, banned accounts, and soft-deleted accounts do not gain authority. `private` must remain absent from hosted Data API exposed schemas. Only `authenticated` gets schema usage and execution on narrowly necessary helpers; trigger/locking/initialization helpers are not callable by web clients. All definer functions use empty `search_path`, qualified relations, and no arbitrary SQL input. Verify function ownership is a trusted database owner before hosted use.
 
@@ -164,11 +144,11 @@ The role/audit triggers still run. The audit actor is NULL for trusted database 
 
 ## Hosted approval and 3B handoff
 
-Before any remote application: obtain trusted CLI/database access, link and verify the intended existing project against configured target, inspect remote migration history/application objects/Auth fields, reconcile naming conflicts without overwriting history, confirm private is not exposed, and review bucket/policy overlap and function owners. Run the supported dry run. Then request explicit approval for the **complete three-file SQL set** above and report the blocked local security tests. No conditional approval here substitutes for identifying the target or checking remote history.
+Hosted deployment is already recorded for all three migrations. Do not reapply or rewrite them. The focused read-only hosted verification above is sufficient to begin 3B development; authenticated isolation, mutation guards, and Storage HTTP behavior still need verification during integration. No further migration deployment approval is pending for this existing three-file set.
 
 3B must:
 
-1. Wait for approved migration deployment and the few essential hosted development permission checks in the simplified workflow; this database is not yet verified ready. The entire unavailable local pgTAP/concurrency suite is not a new release gate.
+1. Use the deployed foundation and preserve its security contract. Verify authenticated identity/isolation and administrator mutation behavior during 3B integration. The unavailable local pgTAP/concurrency suite is not a new release gate.
 2. Generate and use actual Supabase database types; preserve editorial copy while integrating operational records.
 3. Implement SSR Auth/verified identities and fail closed when role/profile initialization is unavailable.
 4. Read current `user_roles` for authorization and use guarded role/review RPCs; never trust editable metadata or JWT application-role claims.
