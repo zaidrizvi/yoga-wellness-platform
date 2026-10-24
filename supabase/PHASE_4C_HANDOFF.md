@@ -1,29 +1,47 @@
-# Phase 4C — local implementation and deployment approval checkpoint
+# Phase 4C — deployed backend and operational acceptance checkpoint
 
 Date: 24 October 2026. Intended development project: **`nubblifjxikhpdvkgztt`**.
 
-No hosted Supabase connection, migration dry run, data mutation, user creation, role change, coverage change or booking change was performed in Phase 4C. Previously applied migrations remain unchanged. Phase 5 has not started. **Phase 4C is not operationally accepted or complete at this checkpoint.**
+The corrected migration from commit **`41a1056`** was explicitly approved and deployed on 24 October 2026 to **`nubblifjxikhpdvkgztt`**. All eight migrations now match remote history. No earlier migration was modified or reapplied, and no migration-history repair/prerequisite was needed. No real account role, Auth eligibility, coverage or booking data was changed. Phase 5 has not started. **Backend deployment is complete; authenticated UI/business acceptance remains pending.**
+
+## Deployment verification — 24 October 2026
+
+| Check | Result and evidence |
+| --- | --- |
+| Target and approved SQL | **PASS:** CLI project list reported `nubblifjxikhpdvkgztt`, `yoga-wellness-platform`, `ACTIVE_HEALTHY`. Explicit CLI link matched the ID; the pending file had no diff from commit `41a1056`, including its Auth eligibility correction. |
+| Pending history / dry run | **PASS:** seven earlier migrations were applied, Phase 4C was absent, and one fresh dry run listed only `20261024020000_admin_operations_and_customer_history.sql`. |
+| Deployment / final history | **PASS:** supported CLI `db push --linked --yes` applied only that file. A subsequent remote history query confirmed all eight local/remote versions match. No reset, seed, role bootstrap, history repair or earlier migration execution occurred. |
+| New functions | **PASS:** all six public RPCs and both private trigger functions exist. Normalized function-body hashes match the approved local SQL. All are SECURITY DEFINER with empty search paths; PUBLIC/anon cannot execute them, authenticated can execute only the six public entrypoints. |
+| RLS / triggers / direct permissions | **PASS (catalog):** `service_area_events` exists with RLS and admin-only SELECT policy; immutable audit, last-eligible-role and Auth eligibility triggers are enabled. Original role-mutation and Auth soft-delete guards remain enabled. Authenticated users have no direct coverage INSERT/UPDATE/DELETE or Auth-user UPDATE permission. |
+| Admin runtime permission probes | **PASS:** under the existing eligible admin's database role/JWT-subject context, coverage overview/history and exact-account team lookup succeeded; self-role change was denied before mutation. Anonymous RPC calls were denied. An existing customer's calls to all five admin RPCs were denied, including invalid/null write payloads that cannot reach a business write. |
+| Customer runtime isolation probes | **PASS:** an existing customer read their genuine owned timeline and received denial for a nonexistent booking. A second existing customer was denied the first customer's timeline and saw no foreign booking row through RLS. Customer execution of the private Auth trigger was denied. Customer audit SELECT returned zero rows, but that table is empty; actual populated-audit isolation remains unexercised. The timeline return type contains only event UUID, event key and timestamp. |
+| Last-eligible-admin protection | **PASS (hosted configuration):** approved Auth eligibility and role guard bodies match, their triggers are enabled on the expected tables/columns, and one eligible admin currently exists. **UNVERIFIED (hosted mutation/runtime):** no ban, deletion, confirmation removal or role revocation was attempted against real accounts. Prior disposable local PostgreSQL mutation/concurrency regressions passed and were not rerun. |
+| Existing business data preservation | **PASS:** all seven before/after aggregate fingerprints matched: user roles, Auth eligibility fields, PIN coverage, bookings, assignments, fulfillment events and administrative audit. No PII or Auth credentials were printed. |
+
+Permission probes used trusted SQL with session-local `SET ROLE` and existing user UUID subjects, then rolled back. They validate PostgreSQL authorization, not signed browser sessions, email delivery or end-to-end UI actions. Verification SQL/results live only in ignored local cache; no persistent test function/account/fixture was created on Supabase. No frontend tests, project-wide audit or additional local guard tests were run for deployment.
+
+**Remaining manual acceptance:** sign in through the real UI and confirm Coverage/Team reads and the owned booking timeline. Coverage writes, reference-preserving deactivation, separately authorized team promotion/revocation, populated audit visibility, stale-version denial and the complete customer/admin/professional booking journey still require deliberate acceptance with legitimate business records. Do not ban or remove the sole eligible admin as a test. Hosted types still need regeneration and the pending-RPC adapter can then be removed as a separate integration cleanup; no application code was changed at this deployment checkpoint. No deployment/security blocker was found in the focused executed checks.
 
 ## Implementation summary
 
 | Feature | Previous gap | Local result | Evidence |
 | --- | --- | --- | --- |
-| Coverage | No underlying PIN-area management screen | `/admin/coverage` is prepared with create/edit/activation decisions, reason/confirmation, reference counts and audit history. It explicitly shows a migration-required state until its backend exists. | `src/app/admin/coverage`, `src/app/admin/operations-actions.ts`, proposed SQL |
-| Team | No general administrator-management screen | `/admin/team` is prepared with exact UUID lookup, eligibility/current-role display, reason/confirmation, stale-version protection, self-change denial and existing role audit. No email directory or account creation. Migration required before use. | `src/app/admin/team`, controlled wrapper calling existing `change_user_role` |
+| Coverage | No underlying PIN-area management screen | `/admin/coverage` implements create/edit/activation decisions, reason/confirmation, reference counts and audit history. Its backend is now deployed; UI write acceptance remains pending. | `src/app/admin/coverage`, `src/app/admin/operations-actions.ts`, deployed Phase 4C SQL |
+| Team | No general administrator-management screen | `/admin/team` implements exact UUID lookup, eligibility/current-role display, reason/confirmation, stale-version protection, self-change denial and existing role audit. No email directory or account creation. Backend deployed; authorized UI acceptance remains pending. | `src/app/admin/team`, controlled wrapper calling existing `change_user_role` |
 | Pricing | Generic service records could display a platform quote | Generic service presentation no longer supplies platform price/duration. Booking and service detail pages explain actual approved trainer terms, explicit customer agreement and professional acceptance. Existing approved offering prices/snapshots are untouched. | `src/lib/data/public.ts`, service detail and booking pages |
 | Yoga/process | Described implemented request/fulfillment features as unavailable | Current request → reviewed offering → customer agreement → professional acceptance → tracked visit explanation. Session-count illustrations are not purchases; four weeks differs from a calendar month. Actual offerings remain linked through service pages. | `src/content/process.ts`, services/home content, Yoga and process pages |
-| Customer history | Latest proposal/milestones omit reassignment and professional acceptance | Customer-safe event timeline is prepared; current milestone fallback remains available before migration. No internal reasons/actor identities/addresses are exposed. Cancelled bookings no longer show a stale cancellation-awaiting-review message. | `src/components/fulfillment/customer-history.tsx`, proposal component, scoped SQL RPC |
+| Customer history | Latest proposal/milestones omit reassignment and professional acceptance | Customer-safe event timeline backend is deployed and owned/foreign permission probes passed; browser acceptance remains pending. No internal reasons/actor identities/addresses are exposed. Cancelled bookings no longer show a stale cancellation-awaiting-review message. | `src/components/fulfillment/customer-history.tsx`, proposal component, scoped SQL RPC |
 | SEO | Recruitment missing from sitemap; private route rules incomplete | Recruitment canonical metadata and sitemap entry; exact professional-root/private-prefix robots rules preserve `/professionals` and recruitment. Existing private layouts retain noindex. | Sitemap, robots, recruitment metadata |
 
 Existing professional application approval, profiles, offerings, price revisions, availability and appointments remain in place. Admin navigation includes Coverage Management and Team Management.
 
-## Required database approval
+## Deployed database change
 
 Complete SQL: [20261024020000_admin_operations_and_customer_history.sql](migrations/20261024020000_admin_operations_and_customer_history.sql).
 
-**Prepared locally only. Not applied.** No remote pending-migration/history assertion is made; hosted inspection was not authorized in this milestone. The earlier seven deployed migrations are documented by prior handoffs.
+**Applied successfully after explicit approval.** Final remote migration history matches all eight local versions, including `20261024020000`. The earlier seven files remain unchanged.
 
-Security-sensitive effects proposed:
+Security-sensitive effects deployed:
 
 - New RLS-protected, admin-readable, append-only `service_area_events`; coverage writes record the previous/new name, PIN and active state plus actor and mandatory reason.
 - `admin_save_service_area` uses existing role/fulfillment locks, current administrator checks, validated six-digit PIN format, optimistic timestamps and the existing area UUID. Referenced PINs cannot change; create a new area instead. No area deletion is exposed. Legacy NULL-PIN areas can remain inactive/deactivate without changing references; creation/activation requires a valid PIN. A configured PIN's business support still requires the administrator's judgment; no postal-address verification service is invented.
@@ -35,7 +53,7 @@ Security-sensitive effects proposed:
 - `customer_booking_timeline` authorizes only the current customer’s own booking, returning event UUID, whitelisted milestone key and timestamp. It reads existing audit rows without exposing reasons, actor identities, private checks, commercial fingerprints or customer addresses. Both agreement and professional acceptance remain required by existing database rules.
 - New/replaced function execution is explicitly revoked from PUBLIC/anon/authenticated and narrowly granted to authenticated API entrypoints; private trigger execution is not granted to clients. All function search paths are empty. No Storage policies or existing role/application RPC definitions change.
 
-Client calls use a small explicit pending-RPC adapter because actual generated hosted types cannot include undeployed functions. Existing generated types were not fabricated. Missing-function responses produce a migration-required notice for admin screens, and customer history retains the old milestones. Other authorization/network failures are not misrepresented as migration absence.
+Client calls still use the small explicit pending-RPC adapter introduced before deployment; hosted types have not been regenerated at this deployment-only checkpoint. Existing generated types were not fabricated. The missing-function fallback remains in code, but catalog checks now confirm those functions exist. Other authorization/network failures are not misrepresented as migration absence.
 
 ## Operational prerequisites and acceptance evidence
 
@@ -46,7 +64,7 @@ Client calls use a small explicit pending-RPC adapter because actual generated h
 | Active categories/services | Initial genuine categories/services and publication integration documented in prior handoffs. Their present hosted state was not re-queried. |
 | Current approved professionals/offerings/PINs/hours | Not independently verified in Phase 4C. Do not call these missing based on an old empty-data snapshot. Owner should confirm via the authorized interfaces. |
 | Email provider/redirect settings | Not independently verified here. Owner-reported onboarding supports the exercised flow, not all recovery/cross-device/template cases. |
-| Migration history | Previously documented through onboarding. New Phase 4C SQL is local only; no hosted history inspection was performed. |
+| Migration history | Confirmed remotely through Phase 4C on 24 October 2026: all eight local/remote versions match. |
 
 | Journey | Source/unit evidence | Real acceptance evidence |
 | --- | --- | --- |
@@ -62,7 +80,7 @@ Client calls use a small explicit pending-RPC adapter because actual generated h
 - **PASS — focused real concurrency:** six two-session schedules observed actual database lock waits: ban versus ban, ban versus soft-delete, ban versus role demotion, role demotion versus ban, committed unban versus role demotion (permitted), and rolled-back unban versus ban (rejected). Each finished with one eligible administrator. An Auth eligibility mutation under REPEATABLE READ was rejected by the existing lock helper. The runner stopped its disposable cluster afterward. These are real local PostgreSQL guard tests, **not** hosted Supabase/Auth HTTP API, full-schema integration or professional-approval acceptance tests.
 - Local runner setup initially encountered the Windows sandbox restricted-token error and then inherited output-pipe handling during server startup. Elevated local execution and detached server output resolved these harness-only issues; the temporary cluster from the failed setup was stopped. The migration required no repair after its first actual SQL/concurrency execution. No frontend tests or previous database audit suites were repeated for this correction.
 - **PASS — correction tooling:** targeted ESLint on `scripts/test-admin-eligibility.mjs` and `git diff --check`. No frontend or project-wide checks were rerun.
-- **Earlier implementation baseline:** original proposed SQL outer grammar, 25 statements; seven PL/pgSQL bodies parsed. Static tests covered explicit grants/search paths, original role-change reuse, last-eligible-admin guard, immutable referenced PINs and customer-safe timeline output. The complete migration remains **unexecuted against PostgreSQL**; only the guard subset described above was subsequently executed locally.
+- **Earlier implementation baseline:** original proposed SQL outer grammar, 25 statements; seven PL/pgSQL bodies parsed. Static tests covered explicit grants/search paths, original role-change reuse, last-eligible-admin guard, immutable referenced PINs and customer-safe timeline output. At that earlier local checkpoint the complete migration had not been executed; it is now deployed as recorded above. These historical frontend/local checks were not rerun for deployment.
 - **PASS:** TypeScript and ESLint. Final legacy-NULL-PIN compatibility adjustment received targeted lint, typecheck and admin-unit revalidation.
 - **PASS:** 18 unique focused unit checks across `admin-operations.test.ts` (14 final tests) and `phase4c-public.test.tsx` (four unchanged tests). Admin role guards/RPC results are mocked; SQL assertions are source contracts, not hosted security proof.
 - **PASS:** final production build with isolated dummy Supabase configuration. All changed routes compiled.
@@ -73,7 +91,7 @@ The ignored production build artifacts use **dummy backend configuration** from 
 
 ## Outstanding work and readiness
 
-**P0 / operational checkpoint:** approve and deploy only the proposed migration before using coverage/team writes or the expanded timeline. Then regenerate actual schema types, use the actual generated RPC signatures and verify the new functions/policies/trigger. No existing migration should be reapplied or rewritten.
+**Deployment checkpoint COMPLETE:** only the approved corrected migration was applied and its new objects/permissions verified. Regeneration of actual schema types and replacement of the pending-RPC adapter remain integration cleanup. No existing migration should be reapplied or rewritten.
 
 **P0 / acceptance:** with legitimate accounts and genuine business records, confirm actual offerings/PINs/hours, run one full customer/admin/professional appointment, then expiry, cancellation/reassignment, time-off/overlap and suspension checks. Obtain explicit authorization before any hosted role/coverage/booking mutation. Do not create synthetic hosted practitioners or data.
 
@@ -81,12 +99,12 @@ The ignored production build artifacts use **dummy backend configuration** from 
 
 **P2:** normal final-launch photography/canonical-domain preparation remains outside this milestone. No payment or entitlement feature is included.
 
-Readiness answers: Phases 1–4 are **not yet operationally complete**; the admin can use coverage/team only **after migration deployment**; public pricing/process presentation is aligned; real booking flows remain insufficiently accepted; one migration awaits approval; Phase 5 payment integration should wait for approval and focused operational acceptance. Independent content/SEO work is complete. No additional architecture or redesign is needed.
+Readiness answers: Phases 1–4 are **not yet operationally accepted**; the Coverage/Team backend and customer timeline are now deployed and available for manual UI acceptance; public pricing/process presentation is aligned; full real booking flows remain insufficiently accepted; no migration remains pending at this checkpoint. Phase 5 should wait for focused operational acceptance and its own authorization. No additional architecture or redesign is needed.
 
-## Resume sequence after approval
+## Remaining acceptance sequence
 
-1. Confirm the exact project/pending file under the newly authorized operation, deploy only this file, and perform focused non-destructive object/permission verification.
-2. Regenerate actual hosted types and remove the temporary pending-RPC type escape without changing the public contracts. Build with normal environment configuration.
+1. Deployment and focused non-destructive verification are complete; do not deploy or reapply Phase 4C again.
+2. As a separate integration cleanup, regenerate actual hosted types and remove the temporary pending-RPC type escape without changing public contracts.
 3. Complete separately authorized real-account acceptance above. Previously passing unrelated checks do not need repetition.
 
 No GitHub push was performed. See the local implementation commit for the precise source/test/documentation file list; only the unrelated generated `next-env.d.ts` change should remain outside it.
