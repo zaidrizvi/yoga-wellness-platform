@@ -7,6 +7,6 @@ export const dynamic = "force-dynamic";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // No fabricated origin; becomes populated when a real canonical URL is set.
   if (!site.url) return [];
-  const paths = [...navigation.map(({ href }) => href), ...(await publishedServices()).map(({ slug }) => `/services/${slug}`)];
+  const paths = ["/join-as-professional", ...navigation.map(({ href }) => href), ...(await publishedServices()).map(({ slug }) => `/services/${slug}`)];
   return paths.map((path) => ({ url: new URL(path, site.url).href, changeFrequency: "monthly", priority: path === "/" ? 1 : .8 }));
 }

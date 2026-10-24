@@ -45,14 +45,14 @@ export const serviceCatalog: readonly Service[] = [
     faqs: [
       { question: "Do I need previous yoga experience?", answer: "You can explore personal yoga as a beginner or with an established practice. Your experience and goals will help the team consider a suitable instructor and session approach." },
       { question: "Will I need a yoga mat?", answer: "A mat and a clear space may be appropriate. Equipment requirements and what the professional will bring will be explained before confirmation; equipment provision is not currently finalized." },
-      { question: "Can I continue with regular sessions?", answer: "Monthly personal yoga programs are planned, with potential 8-session and 12-session options. Final packages and instructor availability will be shared at launch." },
+      { question: "Can I continue with regular sessions?", answer: "Approved trainers can propose recurring Yoga packages. Review the actual session count, price and duration unit; 8- and 12-session illustrations are not automatically available packages." },
     ], related: ["naturopathy", "massage-therapy"],
   },
   {
     slug: "naturopathy", title: "Naturopathy Consultations", subtitle: "A considered conversation", category: "Lifestyle & wellbeing",
     description: "Personal consultations to discuss your lifestyle, everyday habits, and wellness goals with a suitable professional.",
     detail: "Lifestyle discussion · Individual context",
-    introduction: "An opportunity to pause and look at your everyday habits. Our planned at-home naturopathy consultations create space for a personal conversation about lifestyle and wellbeing.",
+    introduction: "An opportunity to pause and look at your everyday habits. At-home naturopathy consultations create space for a personal conversation about lifestyle and wellbeing.",
     hero: assets.botanical,
     overview: "The intended consultation centres on discussing your routine, priorities, and wellness goals. A suitable professional will explain the scope of the consultation and any general lifestyle guidance they can provide. No particular treatment, diagnosis, or medical result is promised.",
     expectations: [
@@ -65,14 +65,14 @@ export const serviceCatalog: readonly Service[] = [
     faqs: [
       { question: "Is this a medical treatment appointment?", answer: "The planned offering is a wellness and lifestyle consultation. The professional's scope and qualifications will be explained when genuine records are available. It does not replace medical care or promise treatment outcomes." },
       { question: "Do I need to prepare anything?", answer: "A comfortable setting for discussion is a useful starting point. Specific preparation will be explained before confirmation; please do not submit personal health records through this public website." },
-      { question: "Will supplements or products be included?", answer: "No products, supplements, tests, or additional treatments are currently specified as included. Final service details will clearly explain the scope before requests open." },
+      { question: "Will supplements or products be included?", answer: "No products, supplements, tests, or additional treatments are currently specified as included. Your selected approved offering and proposed terms explain the actual scope before you agree." },
     ], related: ["personal-yoga", "massage-therapy"],
   },
   {
     slug: "massage-therapy", title: "Massage & Wellness Therapy", subtitle: "Time to slow down", category: "Rest & relaxation",
     description: "At-home sessions focused on relaxation and personal comfort, with the service and visit requirements explained beforehand.",
     detail: "Rest · A familiar setting",
-    introduction: "Set aside a little time for rest. Our planned massage and wellness sessions bring a considered relaxation experience to the familiarity of home, with clear information about the visit.",
+    introduction: "Set aside a little time for rest. Massage and wellness sessions bring a considered relaxation experience to the familiarity of home, with clear information about the visit.",
     hero: assets.room,
     overview: "The intended offering focuses on relaxation and comfort. Specific therapy formats, professional suitability, equipment, and session scope will be published once confirmed. Your preferences and comfort should guide the experience, with boundaries discussed before the session.",
     expectations: [
@@ -83,7 +83,7 @@ export const serviceCatalog: readonly Service[] = [
     suitability: "For people considering a relaxation-focused home visit. Individual circumstances may affect suitability. For medical concerns, consult your clinician before considering a session; this offering does not promise therapeutic or medical outcomes.",
     preparation: "A private, comfortable space may be needed. Equipment, linens, and setup arrangements will be confirmed in the service information before a visit is agreed.",
     faqs: [
-      { question: "Which massage formats will be available?", answer: "The business has not yet finalized or supplied a list of formats. Specific options, scope, and professional details will be published before booking requests open." },
+      { question: "Which massage formats will be available?", answer: "The business has not yet finalized or supplied a list of formats. Refer to currently approved professional offerings for actual scope and terms. You can submit a generic service request for review without accepting an unspecified treatment or price." },
       { question: "Will the professional bring equipment?", answer: "Equipment and linen arrangements are not yet finalized. These details and home-space requirements will be explained before appointment confirmation." },
       { question: "Can I discuss my preferences beforehand?", answer: "The intended process includes clear communication about the service, your comfort, and any relevant requirements. Preferences will be considered alongside professional suitability and availability." },
     ], related: ["personal-yoga", "naturopathy"],
@@ -92,14 +92,14 @@ export const serviceCatalog: readonly Service[] = [
 
 export const yogaProgram = {
   title: "Monthly Personal Yoga Programs", subtitle: "Make space for a practice",
-  description: "A regular rhythm of personal yoga sessions, with monthly options planned around your routine.",
+  description: "A regular rhythm of personal yoga sessions, with package options defined by approved trainer offerings.",
   detail: "Consistency · Personal attention", href: "/yoga-programs",
   options: [
     { sessions: 8, title: "A steady foundation", description: "A planning example for making regular guided practice part of your month." },
     { sessions: 12, title: "A closer rhythm", description: "A planning example for those who would like more frequent personal guidance." },
   ],
   faqs: [
-    { question: "Are the 8-session and 12-session options finalized?", answer: "No. They are planning examples. Final session counts, prices, durations, validity, and scheduling terms will be published before programs can be requested or purchased." },
+    { question: "Are the 8-session and 12-session options finalized?", answer: "No. They are planning examples. Actual session counts, prices and explicit duration units come from approved trainer offerings. Four weeks is not a calendar month; the illustrations do not create a purchase or session balance." },
     { question: "Will I have the same instructor each time?", answer: "Instructor continuity is an intended priority because it supports a familiar practice. The team will consider it during assignment, but it will depend on availability and cannot yet be guaranteed." },
     { question: "Does a monthly program renew automatically?", answer: "No automatic renewal or recurring billing is implemented or promised. A monthly program describes a planned grouping of sessions, not an active subscription." },
     { question: "Can I reschedule or change a program?", answer: "Scheduling flexibility, cancellation rules, validity, and package changes have not been finalized. The terms will be clearly explained before a program is offered." },

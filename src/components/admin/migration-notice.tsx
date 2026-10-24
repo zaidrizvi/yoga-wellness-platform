@@ -1,0 +1,2 @@
+import { pendingMigration } from "@/lib/admin-operations/rpc";
+export function MigrationNotice(){return <section className="application-feedback" role="status"><h2>Database approval required</h2><p>This interface is prepared but is not operational until the reviewed migration is approved and deployed.</p><p className="booking-reference">{pendingMigration}</p><p>No account or coverage changes have been made.</p></section>;}

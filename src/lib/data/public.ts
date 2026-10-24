@@ -29,8 +29,9 @@ export function servicePresentation(row: PublishedService): Service {
   return {
     ...(editorial ?? { subtitle: "Personal wellbeing", detail: "At-home wellness", introduction: row.short_description, hero: assets.botanical, overview: row.detailed_description || row.short_description, expectations: [], suitability: "Please review the confirmed scope with the team before considering this service.", preparation: "Preparation details will be confirmed before appointments open.", faqs: [], related: [] }),
     slug: row.slug, title: row.name, description: row.short_description, category: row.service_categories.name,
-    price: row.price_minor === null ? undefined : { amountInRupees: row.price_minor / 100, currency: "INR" },
-    durationMinutes: row.duration_minutes ?? undefined,
+    // Generic service records are information, not trainer booking quotes.
+    price: undefined,
+    durationMinutes: undefined,
   };
 }
 

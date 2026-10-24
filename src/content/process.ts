@@ -1,9 +1,9 @@
 export const appointmentJourney = [
-  { title: "Explore the possibilities", description: "Read about the services and monthly programs to understand what each planned experience involves." },
-  { title: "Choose your experience", description: "Consider the service that fits your goals and preferences. Confirmed scope, pricing, and visit requirements will be available before requests open." },
-  { title: "Share a booking request", description: "Once the booking system is available, share a preferred date, appointment window, and home address through the request process. No request form is live today." },
-  { title: "Let the team review", description: "The team will review location coverage and professional availability against your preferences. A submitted request does not guarantee a slot." },
-  { title: "A suitable professional is assigned", description: "An administrator will consider service eligibility, location, and schedule when assigning a professional. Matching will be managed, not automatic." },
-  { title: "Receive explicit confirmation", description: "Your appointment is confirmed only after professional assignment and explicit confirmation of the visit details." },
-  { title: "Make space for the visit", description: "Prepare your home according to the agreed service requirements. The assigned professional will deliver the confirmed service at your home." },
+  { title: "Explore the possibilities", description: "Read the service information and currently approved professional offerings. Each professional sets their own reviewed prices and terms." },
+  { title: "Choose your experience", description: "Choose an Aara service and save your visit address. Your request initially identifies a service, not an agreed trainer or price." },
+  { title: "Share a booking request", description: "Submit your preferred date, appointment window and location. This reserves no slot and does not accept commercial terms." },
+  { title: "Let the team review", description: "An administrator checks eligibility, approved offerings, exact PIN coverage, working hours and conflicts, then proposes an offering and exact time." },
+  { title: "Review your actual proposal", description: "In your booking details, review the professional, price, session/package terms and exact schedule. Explicitly accept or decline, including any change from your preference, before the proposal deadline." },
+  { title: "Receive explicit confirmation", description: "After your agreement, the professional must accept the active proposal. Only then is the appointment confirmed. Unanswered proposals expire and may need reassignment." },
+  { title: "Make space for the visit", description: "The professional starts and completes the agreed appointment. Track its status in your account; cancellation after assignment requires administrator resolution." },
 ];

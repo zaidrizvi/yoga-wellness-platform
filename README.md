@@ -75,6 +75,16 @@ Official integration reference: [Supabase SSR client and proxy guidance](https:/
 
 Focused auth UX update: 36 relevant tests passed across login/signup actions, confirmation/recovery callbacks, protected-request redirects/cookie preservation, and the prominent signup confirmation screen; TypeScript passed. Supabase responses were mocked for these checks; no live email requests or hosted setting changes were made.
 
+## Phase 4C ? local implementation, database approval pending
+
+Coverage Management (`/admin/coverage`), Team Management (`/admin/team`) and customer-safe booking milestones are prepared locally. The admin screens explicitly remain unavailable until [20261024020000_admin_operations_and_customer_history.sql](supabase/migrations/20261024020000_admin_operations_and_customer_history.sql) is approved and deployed. No hosted Supabase connection or data mutation was performed for Phase 4C.
+
+Generic service pages/booking requests now distinguish informational service records from actual approved trainer prices/durations. Yoga examples, customer agreement/professional acceptance copy, recruitment sitemap/canonical metadata and private-route robots rules are aligned. Existing approved prices and booking snapshots are unchanged.
+
+TypeScript, ESLint, 18 unique focused unit tests, local SQL grammar checks, the final isolated production build and two mobile/desktop browser checks passed. Hosted admin writes, last-admin runtime behavior, expanded history and real appointment acceptance remain pending. The owner reports professional onboarding acceptance; no broader authenticated acceptance is inferred.
+
+See [PHASE_4C_HANDOFF.md](supabase/PHASE_4C_HANDOFF.md) for complete SQL effects, the migration approval checkpoint, prerequisites and the small real-account checklist. Phase 4C is not operationally accepted and Phase 5 has not started. The isolated test build uses dummy backend configuration; use normal development configuration or rebuild normally after deployment for real-account acceptance.
+
 ## Professional onboarding (24 October 2026)
 
 The approved `20261024012000_professional_applications.sql` migration is deployed to `nubblifjxikhpdvkgztt`. The dedicated recruitment, registration/login, application/status, professional overview and admin application-review interfaces are implemented with actual Supabase operations. Existing customer bookings and professional service/pricing/availability/appointment URLs are preserved.

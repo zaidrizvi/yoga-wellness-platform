@@ -16,7 +16,7 @@ export const approach = [
 ] as const;
 
 export const faqs = [
-  { question: "Can I book a home visit now?", answer: "We are preparing to launch in Delhi NCR. You can explore the planned services and appointment process on this website; booking requests are not open yet." },
+  { question: "Can I book a home visit now?", answer: "You can submit a service-level booking request for review. An administrator proposes an eligible approved professional offering with its actual price and schedule. Your agreement and professional acceptance are both required before confirmation." },
   { question: "Does a booking request confirm my appointment?", answer: "No. Once requests open, the team will review your preferred schedule and location, check professional availability, and assign a suitable professional. Only an explicit confirmation will confirm your appointment." },
   { question: "How will monthly yoga programs work?", answer: "We are planning regular personal yoga programs, including potential 8-session and 12-session monthly options. Final schedules, package details, and prices will be shared when the service becomes available." },
   { question: "What will I need for an at-home session?", answer: "A comfortable space appropriate to the service is a helpful starting point. Any specific space, equipment, or preparation requirements will be explained before an appointment is confirmed." },

@@ -8,13 +8,13 @@ import { ProgramFeature } from "@/components/public/program-feature";
 import { AppointmentNote } from "@/components/public/appointment-note";
 import { pageMetadata } from "@/lib/metadata";
 
-export const metadata = pageMetadata("At-home Wellness Services", "Explore personal yoga training, naturopathy consultations, and massage and wellness therapy planned for home visits in Delhi NCR.", "/services");
+export const metadata = pageMetadata("At-home Wellness Services", "Explore personal yoga training, naturopathy consultations, and massage and wellness therapy for home visits in Delhi NCR.", "/services");
 
 export const dynamic = "force-dynamic";
 export default async function ServicesPage() {
   const serviceCatalog = (await publishedServices()).map(servicePresentation);
   return <>
-    <PageHero eyebrow="The service collection" title="Different paths." emphasis="Your kind of wellbeing." description="Movement, conversation, and time for rest. Explore our planned at-home services and find the experience that feels relevant to you." action={{ href: "#collection", label: "Explore the collection" }} />
+    <PageHero eyebrow="The service collection" title="Different paths." emphasis="Your kind of wellbeing." description="Movement, conversation, and time for rest. Explore our at-home services and find the experience that feels relevant to you." action={{ href: "#collection", label: "Explore the collection" }} />
     <section id="collection" className="catalog shell" aria-label="Wellness service collection">
       {!serviceCatalog.length && <p>Published services are not currently available. Please check back soon.</p>}
       {serviceCatalog.map((service, i) => <article className="catalog-row" key={service.slug}>
