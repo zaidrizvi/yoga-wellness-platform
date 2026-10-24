@@ -108,6 +108,40 @@ revoke all on function private.guard_last_eligible_administrator() from public,a
 create trigger guard_last_eligible_administrator before update or delete on public.user_roles
 for each row execute function private.guard_last_eligible_administrator();
 
+-- Auth eligibility gains AND losses share the role-mutation lock. Even a
+-- customer's confirmation/ban change must serialize with concurrent promotion.
+-- Unchanged fields (e.g. ordinary Auth session updates) need no extra lock.
+-- Keep the original soft-delete guard and role/cascade guards in force.
+create function private.guard_administrator_eligibility()
+returns trigger language plpgsql security definer set search_path = '' as $$
+begin
+  if new.email_confirmed_at is not distinct from old.email_confirmed_at
+    and new.deleted_at is not distinct from old.deleted_at
+    and new.banned_until is not distinct from old.banned_until then
+    return new;
+  end if;
+  -- READ COMMITTED is enforced by this helper. The eligibility query below
+  -- runs after serialization, with a fresh snapshot, not a pre-lock count.
+  perform private.lock_administrator_roles();
+  if old.email_confirmed_at is not null and old.deleted_at is null
+    and (old.banned_until is null or old.banned_until<=now())
+    and (new.email_confirmed_at is null or new.deleted_at is not null
+      or (new.banned_until is not null and new.banned_until>now()))
+    and exists(select 1 from public.user_roles where user_id=old.id and role='admin') then
+    if not exists(select 1 from public.user_roles r join auth.users u on u.id=r.user_id
+      where r.role='admin' and r.user_id<>old.id and u.email_confirmed_at is not null
+        and u.deleted_at is null and (u.banned_until is null or u.banned_until<=now())) then
+      raise exception 'Cannot remove the last eligible administrator' using errcode='23514';
+    end if;
+  end if;
+  return new;
+end;
+$$;
+revoke all on function private.guard_administrator_eligibility() from public,anon,authenticated;
+create trigger guard_administrator_eligibility
+before update of banned_until,deleted_at,email_confirmed_at on auth.users
+for each row execute function private.guard_administrator_eligibility();
+
 create function public.admin_change_team_role(p_user_id uuid,p_expected_role text,p_expected_updated_at timestamptz,
   p_make_admin boolean,p_reason text)
 returns uuid language plpgsql volatile security definer set search_path = '' as $$
