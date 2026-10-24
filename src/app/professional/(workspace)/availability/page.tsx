@@ -3,7 +3,7 @@ import { refreshProposals, requireData } from "@/lib/fulfillment/data";
 import { indiaTime } from "@/lib/fulfillment/validation";
 import { ActionForm } from "@/components/auth/action-form";
 import { ScheduleForm } from "@/components/fulfillment/schedule-form";
-import { saveTimeOff, deleteTimeOff, requestCoverage } from "../actions";
+import { saveTimeOff, deleteTimeOff, requestCoverage } from "@/app/professional/actions";
 
 export const metadata = { title: "Availability & working areas | Aara" };
 export default async function Availability() {

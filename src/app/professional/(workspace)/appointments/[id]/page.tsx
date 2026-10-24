@@ -3,7 +3,7 @@ import { requireAccount } from "@/lib/auth/session";
 import { refreshProposals, requireData } from "@/lib/fulfillment/data";
 import { uuid, indiaTime, statusLabel, money } from "@/lib/fulfillment/validation";
 import { ActionForm } from "@/components/auth/action-form";
-import { respondAssignment, advanceAppointment } from "../../actions";
+import { respondAssignment, advanceAppointment } from "@/app/professional/actions";
 
 export default async function Appointment({ params }: { params: Promise<{ id:string }> }) {
   const { supabase,user }=await requireAccount("professional");

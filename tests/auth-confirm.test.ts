@@ -18,6 +18,7 @@ describe("confirmation destinations (mocked Supabase)", () => {
     ["token_hash=example&type=email", "/"],
     ["token_hash=example&type=email&next=https://evil.example", "/"],
     ["token_hash=example&type=email&next=/account", "/account"],
+    ["token_hash=example&type=email&next=/professional/apply", "/professional/apply"],
     ["token_hash=example&type=recovery", "/update-password"],
     ["token_hash=example&type=recovery&next=/", "/update-password"],
     ["code=example&next=/update-password", "/update-password"],

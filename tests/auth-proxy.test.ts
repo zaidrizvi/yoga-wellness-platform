@@ -23,3 +23,15 @@ it("allows an authenticated account request through", async () => {
   expect(response.headers.get("location")).toBeNull();
   expect(response.cookies.get("refreshed-cookie")?.value).toBe("example");
 });
+
+it.each(["/professional/register","/professional/login"])("allows public professional entry %s",async path=>{
+  mocks.getUser.mockResolvedValue({data:{user:null}});
+  const response=await proxy(new NextRequest(`http://localhost:3001${path}`));
+  expect(response.headers.get("location")).toBeNull();
+});
+it("keeps the dedicated protected continuation and cookies",async()=>{
+  mocks.getUser.mockResolvedValue({data:{user:null}});
+  const response=await proxy(new NextRequest("http://localhost:3001/professional/apply"));
+  const destination=new URL(response.headers.get("location")!);
+  expect(destination.pathname).toBe("/professional/login");expect(destination.searchParams.get("next")).toBe("/professional/apply");expect(response.cookies.get("refreshed-cookie")?.value).toBe("example");
+});

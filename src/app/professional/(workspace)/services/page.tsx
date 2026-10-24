@@ -3,7 +3,7 @@ import { requireData } from "@/lib/fulfillment/data";
 import { money, indiaTime } from "@/lib/fulfillment/validation";
 import { OfferingForm } from "@/components/fulfillment/offering-form";
 import { ActionForm } from "@/components/auth/action-form";
-import { submitOffering } from "../actions";
+import { submitOffering } from "@/app/professional/actions";
 
 export const metadata = { title: "My services & packages | Aara" };
 export default async function MyServices({ searchParams }: { searchParams: Promise<{ kind?: string }> }) {

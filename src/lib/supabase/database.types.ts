@@ -315,6 +315,116 @@ export type Database = {
         }
         Relationships: []
       }
+      professional_application_events: {
+        Row: {
+          actor_user_id: string | null
+          applicant_id: string
+          application_id: string
+          created_at: string
+          event: string
+          feedback: string
+          id: string
+          submission_snapshot: Json | null
+        }
+        Insert: {
+          actor_user_id?: string | null
+          applicant_id: string
+          application_id: string
+          created_at?: string
+          event: string
+          feedback?: string
+          id?: string
+          submission_snapshot?: Json | null
+        }
+        Update: {
+          actor_user_id?: string | null
+          applicant_id?: string
+          application_id?: string
+          created_at?: string
+          event?: string
+          feedback?: string
+          id?: string
+          submission_snapshot?: Json | null
+        }
+        Relationships: []
+      }
+      professional_applications: {
+        Row: {
+          applicant_id: string
+          biography: string
+          category_id: string | null
+          consented_at: string | null
+          created_at: string
+          document_paths: string[]
+          feedback: string
+          full_name: string
+          id: string
+          phone: string
+          postal_codes: string[]
+          qualifications: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          service_locations: string
+          specializations: string
+          state: string
+          submitted_at: string | null
+          updated_at: string
+          years_experience: number | null
+        }
+        Insert: {
+          applicant_id: string
+          biography?: string
+          category_id?: string | null
+          consented_at?: string | null
+          created_at?: string
+          document_paths?: string[]
+          feedback?: string
+          full_name?: string
+          id?: string
+          phone?: string
+          postal_codes?: string[]
+          qualifications?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          service_locations?: string
+          specializations?: string
+          state?: string
+          submitted_at?: string | null
+          updated_at?: string
+          years_experience?: number | null
+        }
+        Update: {
+          applicant_id?: string
+          biography?: string
+          category_id?: string | null
+          consented_at?: string | null
+          created_at?: string
+          document_paths?: string[]
+          feedback?: string
+          full_name?: string
+          id?: string
+          phone?: string
+          postal_codes?: string[]
+          qualifications?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          service_locations?: string
+          specializations?: string
+          state?: string
+          submitted_at?: string | null
+          updated_at?: string
+          years_experience?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professional_applications_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "service_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       professional_coverage_requests: {
         Row: {
           action: string
@@ -1097,12 +1207,30 @@ export type Database = {
         }
         Returns: undefined
       }
+      review_professional_application: {
+        Args: {
+          p_application_id: string
+          p_decision: string
+          p_expected_updated_at: string
+          p_feedback: string
+          p_publish_profile?: boolean
+        }
+        Returns: string
+      }
       review_professional_coverage: {
         Args: { p_approve: boolean; p_feedback: string; p_request_id: string }
         Returns: string
       }
       review_professional_offering: {
         Args: { p_approve: boolean; p_feedback: string; p_revision_id: string }
+        Returns: string
+      }
+      save_professional_application: {
+        Args: {
+          p_application_id?: string
+          p_details: Json
+          p_expected_updated_at?: string
+        }
         Returns: string
       }
       save_professional_offering: {
@@ -1140,6 +1268,14 @@ export type Database = {
           p_preferred_date: string
           p_service_id: string
           p_time_window: string
+        }
+        Returns: string
+      }
+      submit_professional_application: {
+        Args: {
+          p_application_id: string
+          p_consent: boolean
+          p_expected_updated_at: string
         }
         Returns: string
       }

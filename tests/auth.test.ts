@@ -20,13 +20,14 @@ function form(values: Record<string, string>) {
 }
 function client(role = "customer", authenticated = true) {
   const single = vi.fn(async () => ({ data: { role }, error: null }));
-  const eq = vi.fn(() => ({ single }));
+  const maybeSingle = vi.fn(async () => ({ data: null as { id: string } | null, error: null }));
+  const eq = vi.fn(() => ({ single, maybeSingle }));
   const select = vi.fn(() => ({ eq }));
   const update = vi.fn();
   const from = vi.fn(() => ({ select, update }));
   const rpc = vi.fn(async () => ({ data: {}, error: null }));
   const auth = { getUser: vi.fn(async () => ({ data: { user: authenticated ? { id: "owner", user_metadata: {} } : null }, error: null })), signInWithPassword: vi.fn(async () => ({ error: null })), signUp: vi.fn(), resetPasswordForEmail: vi.fn(async () => ({ error: { message: "Unknown user" } })) };
-  const result = { from, rpc, auth, update, select, eq, single };
+  const result = { from, rpc, auth, update, select, eq, single, maybeSingle };
   mocks.createClient.mockResolvedValue(result);
   return result;
 }
@@ -108,5 +109,33 @@ describe("focused login and signup destinations (mocked Supabase)", () => {
     const result = await authenticate({}, form({ mode: "signup", full_name: "A customer", email: "person@example.com", password: "a-valid-password", confirmation: "a-valid-password" }));
     expect(result.error).toMatch(/Too many registration attempts/);
     expect(result.confirmationEmail).toBeUndefined();
+  });
+});
+
+
+describe("professional entry and authoritative default login roles (mocked Supabase)", () => {
+  it.each([["customer", "/"], ["professional", "/professional"], ["admin", "/admin"]])("routes %s to %s by current database role", async (role, path) => {
+    client(role);
+    await expect(authenticate({}, form({mode:"login",email:"person@example.com",password:"correct-password"}))).rejects.toThrow(`REDIRECT:${path}`);
+  });
+  it("honors a validated protected destination for a professional", async () => {
+    client("professional");
+    await expect(authenticate({}, form({mode:"login",email:"person@example.com",password:"correct-password",next:"/professional/appointments"}))).rejects.toThrow("REDIRECT:/professional/appointments");
+  });
+  it("routes a dedicated customer applicant login to current application status", async () => {
+    const c=client(); c.maybeSingle.mockResolvedValue({data:{id:"application"},error:null});
+    await expect(authenticate({}, form({mode:"login",email:"person@example.com",password:"correct-password",audience:"professional"}))).rejects.toThrow("REDIRECT:/professional/application-status");
+  });
+  it("starts an application for an existing customer without creating another Auth user", async () => {
+    const c=client();
+    await expect(authenticate({}, form({mode:"login",email:"person@example.com",password:"correct-password",audience:"professional"}))).rejects.toThrow("REDIRECT:/professional/apply");
+    expect(c.auth.signUp).not.toHaveBeenCalled();
+  });
+  it("preserves the application email callback without assigning signup roles", async () => {
+    const c=client();vi.stubEnv("NEXT_PUBLIC_SITE_URL","http://localhost:3001");
+    c.auth.signUp.mockResolvedValue({data:{user:{id:"new-applicant"},session:null},error:null});
+    await authenticate({},form({mode:"signup",full_name:"Applicant",email:"person@example.com",password:"a-valid-password",confirmation:"a-valid-password",next:"/professional/apply",audience:"professional",role:"professional",status:"approved"}));
+    const options=c.auth.signUp.mock.calls[0][0].options;
+    expect(options.data).toEqual({full_name:"Applicant"});expect(new URL(options.emailRedirectTo).searchParams.get("next")).toBe("/professional/apply");expect(c.rpc).not.toHaveBeenCalled();
   });
 });

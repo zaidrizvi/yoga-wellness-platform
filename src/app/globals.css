@@ -572,6 +572,24 @@ h2 em { color: #587053; }
 .check-email .check-email-note { font-size: 13px; color: var(--muted-foreground); }
 
 /* Customer requests and saved addresses. */
+.recruitment-page { padding-block: 72px 96px; }
+.recruitment-hero { max-width: 900px; padding-block: 20px 56px; }
+.recruitment-hero h1 { font-size: clamp(40px,6vw,78px); line-height: 1.12; letter-spacing: -.04em; margin-block: 24px; }
+.recruitment-section { border-top: 1px solid var(--border); padding-block: 40px; }
+.recruitment-section h2 { font-size: clamp(30px,4vw,44px); margin-bottom: 24px; }
+.recruitment-services { display: flex; flex-wrap: wrap; gap: 16px 32px; padding-left: 20px; }
+.recruitment-steps { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 32px 64px; padding-left: 24px; margin-block: 32px; }
+.recruitment-steps h3 { font-size: 26px; margin-bottom: 12px; }
+.recruitment-steps p,.recruitment-section > p { line-height: 1.9; max-width: 65ch; }
+.onboarding-progress { display: flex; flex-wrap: wrap; gap: 12px 28px; padding: 20px; border: 1px solid var(--border); margin-block: 24px; font-size: 14px; }
+.application-feedback { padding: 24px; background: var(--secondary); border-left: 3px solid var(--primary); margin-block: 24px; }
+.application-documents { padding-left: 24px; }
+.workspace-metrics { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 20px; margin-block: 32px; }
+.workspace-metrics article { border-top: 2px solid var(--primary); padding: 16px; background: var(--secondary); }
+.workspace-metrics h2 { font-family: var(--font-sans); font-size: 15px; margin: 0; }
+.workspace-metrics p { font-size: 28px; line-height: 1.5; }
+.workspace-metrics span { font-size: 13px; line-height: 1.7; }
+@media(max-width:767px) { .recruitment-page { padding-block: 32px 56px; } .recruitment-steps { grid-template-columns: minmax(0,1fr); } .workspace-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; } .workspace-metrics article { padding: 12px; } .workspace-metrics p { font-size: 23px; overflow-wrap: anywhere; } }
 .panel-navigation { padding-block: 12px; border-block: 1px solid var(--border); }
 .schedule-window { padding: 20px !important; border: 1px solid var(--border) !important; }
 .schedule-window legend { font-weight: 600; padding-inline: 8px; }

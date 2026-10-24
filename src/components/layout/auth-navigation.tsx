@@ -15,7 +15,7 @@ export function AuthNavigation() {
     return () => controller.abort();
   }, [pathname]);
   return <nav className="auth-navigation" aria-label="Your account">
-    {status?.authenticated ? <><Link href="/account">Account</Link>{status.role === "professional" && <Link href="/account/professional">Professional</Link>}{status.role === "admin" && <Link href="/admin/professionals">Admin</Link>}<ActionForm action={logout} submit="Logout" /></> : <><Link href="/login">Login</Link><Link href="/signup">Sign up</Link></>}
+    {status?.authenticated ? <><Link href="/account">{status.role === "professional" ? "Account Settings" : "Account"}</Link>{status.role === "customer" && <Link href="/professional/application-status">Professional application</Link>}{status.role === "professional" && <Link href="/professional">Professional dashboard</Link>}{status.role === "admin" && <Link href="/admin">Admin</Link>}<ActionForm action={logout} submit="Logout" /></> : <><Link href="/login">Login</Link><Link href="/signup">Sign up</Link></>}
     {status?.unavailable && <span role="status">Account unavailable</span>}
   </nav>;
 }
