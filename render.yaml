@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: aara-staging
+    runtime: node
+    plan: free
+    region: singapore
+    branch: staging
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    autoDeployTrigger: off
+    envVars:
+      - key: NODE_VERSION
+        value: 24.22.1
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: NEXT_PUBLIC_SITE_URL
+        sync: false
