@@ -9,7 +9,7 @@ const environment=Object.fromEntries(Object.entries(process.env).filter(([k])=>!
 mkdirSync('node_modules/.cache',{recursive:true});const dir=mkdtempSync(path.resolve('node_modules/.cache/marketplace-db-'));const data=path.join(dir,'data');
 const server=createServer();await new Promise(r=>server.listen(0,'127.0.0.1',r));const port=server.address().port;await new Promise(r=>server.close(r));
 function run(command,args,input){const r=spawnSync(path.join(bin,command+(process.platform==='win32'?'.exe':'')),args,{input,encoding:'utf8',windowsHide:true,env:environment,timeout:60000,stdio:command==='pg_ctl'?'ignore':'pipe',maxBuffer:8*1024*1024});if(r.error||r.status!==0)throw new Error(`${command}: ${r.error??r.stderr}`);return r.stdout??'';}
-const sql=s=>run('psql',['-X','-q','-v','ON_ERROR_STOP=1','-h','127.0.0.1','-p',String(port),'-U','postgres','-d','postgres'],s);
+const sql=s=>run('psql',['-X','-q','-v','ON_ERROR_STOP=1','-h','127.0.0.1','-p',String(port),'-U','postgres','-d','postgres','-f','-'],s);
 let started=false;
 try{
  run('initdb',['-D',data,'-U','postgres','-A','trust','--no-locale','-E','UTF8']);started=true;
@@ -28,7 +28,7 @@ try{
   const source=readFileSync(`supabase/migrations/${file}`,'utf8');await parse(source);sql(`begin;\n${source}\ncommit;`);
   console.log(`LOCAL compatibility PASS: ${file}`);
  }
- const testFile=process.argv.includes('--applicant-localities')?'supabase/tests/security/applicant-localities.test.sql':process.argv.includes('--catalog-only')?'supabase/tests/security/marketplace-catalog.test.sql':'supabase/tests/security/marketplace.test.sql';
+ const testFile=process.argv.includes('--locality-coverage')?'supabase/tests/security/locality-coverage.test.sql':process.argv.includes('--applicant-localities')?'supabase/tests/security/applicant-localities.test.sql':process.argv.includes('--catalog-only')?'supabase/tests/security/marketplace-catalog.test.sql':'supabase/tests/security/marketplace.test.sql';
  const tests=readFileSync(testFile,'utf8');await parse(tests);console.log(sql(tests));
  console.log('PASS: focused Phase 4E SQL on real local PostgreSQL, with minimal Auth/Storage catalog stubs. No hosted access.');
 }finally{if(started)run('pg_ctl',['-D',data,'-m','immediate','-w','stop']);}
