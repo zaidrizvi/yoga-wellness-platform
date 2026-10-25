@@ -4,10 +4,15 @@ import { publicClient } from "@/lib/data/public";
 import { marketplaceRpc,marketplacePending } from "./rpc";
 import { localitySchema,professionalSchema,bundleSchema,filtersSchema } from "./contracts";
 export async function activeLocalities(){const result=await marketplaceRpc(publicClient(),"marketplace_locations");if(result.error){if(marketplacePending(result.error))return {available:false,localities:[]};throw new Error("Locality selection is temporarily unavailable.");}return {available:true,localities:z.array(localitySchema).parse(result.data)};}
+export async function catalogLocalities(){
+  const result=await marketplaceRpc(publicClient(),"marketplace_catalog_locations");
+  if(result.error){if(marketplacePending(result.error))return {...await activeLocalities(),catalogAvailable:false};throw new Error("Locality catalog is temporarily unavailable.");}
+  return {available:true,catalogAvailable:true,localities:z.array(localitySchema).parse(result.data)};
+}
 export async function marketplaceData(query:Record<string,string|undefined>={},professional?:string){
   const input=Object.fromEntries(Object.entries(query).filter(([,v])=>v!==""&&v!==undefined));
   const parsed=filtersSchema.safeParse(input);
-  const locations=await activeLocalities();
+  const locations=await catalogLocalities();
   if(!locations.available)return {...locations,professionals:[],bundles:[],invalid:false};
   if(!parsed.success||(parsed.data.area&&!locations.localities.some(l=>l.id===parsed.data.area)))return {...locations,professionals:[],bundles:[],invalid:true};
   const f=parsed.data;const client=publicClient();
