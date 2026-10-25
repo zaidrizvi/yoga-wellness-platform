@@ -21,6 +21,11 @@ it("reviews actual selected address/preferences and retains its key across uncer
   await user.click(screen.getByRole("button", { name: "Review request" }));
   expect(mocks.submitBooking).not.toHaveBeenCalled();
   expect(screen.getByRole("heading", { name: "Review your request." })).toBeVisible();
+  expect(screen.getByRole("heading", { name: "Review your request." })).toHaveFocus();
+  await user.click(screen.getByRole("button", { name: "Edit request details" }));
+  expect(screen.getByRole("button", { name: "Review request" })).toHaveFocus();
+  expect(screen.getByLabelText("Preferred date")).toHaveValue(tomorrow);
+  await user.click(screen.getByRole("button", { name: "Review request" }));
   expect(screen.getByText(/reviewed before your appointment is confirmed/)).toBeVisible();
   if (!(screen.getByRole("checkbox") as HTMLInputElement).checked) await user.click(screen.getByRole("checkbox"));
   await user.click(screen.getByRole("button", { name: "Request Booking" }));

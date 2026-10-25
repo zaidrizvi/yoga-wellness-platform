@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
+import { PanelNavigation } from "@/components/layout/panel-navigation";
 import { requireAccount } from "@/lib/auth/session";
 import { ActionForm } from "@/components/auth/action-form";
 import { logout } from "@/app/auth/actions";
@@ -9,5 +9,14 @@ export const metadata = { robots: { index: false, follow: false } };
 export default async function ProfessionalLayout({ children }: { children: React.ReactNode }) {
   const { role } = await requireAccount();
   if (role !== "professional") redirect(role === "customer" ? "/professional/application-status" : "/admin");
-  return <section className="shell account-shell"><p className="eyebrow">Your professional practice</p><nav className="account-links panel-navigation" aria-label="Professional panel"><Link href="/professional">Dashboard Overview</Link><Link href="/account/professional">My Profile</Link><Link href="/professional/services">My Services</Link><Link href="/professional/services?kind=recurring_package">Yoga Packages</Link><Link href="/professional/services#approval-status">Approval Status</Link><Link href="/professional/availability">Availability & areas</Link><Link href="/professional/appointments">My Appointments</Link><Link href="/account">Personal account</Link></nav>{children}<div className="logout-area"><ActionForm action={logout} submit="Sign out" /></div></section>;
+  return <section className="shell account-shell"><p className="eyebrow">Your professional practice</p><PanelNavigation label="Professional panel" links={[
+    { href: "/professional", label: "Dashboard Overview" },
+    { href: "/account/professional", label: "My Profile" },
+    { href: "/professional/services", label: "My Services" },
+    { href: "/professional/services?kind=recurring_package", label: "Yoga Packages" },
+    { href: "/professional/services#approval-status", label: "Approval Status" },
+    { href: "/professional/availability", label: "Availability & areas" },
+    { href: "/professional/appointments", label: "My Appointments" },
+    { href: "/account", label: "Personal account" },
+  ]} />{children}<div className="logout-area"><ActionForm action={logout} submit="Sign out" /></div></section>;
 }

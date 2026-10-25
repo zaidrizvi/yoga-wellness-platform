@@ -4,7 +4,7 @@ vi.mock("server-only",()=>({}));
 const m=vi.hoisted(()=>({authenticate:vi.fn(),account:vi.fn(),redirect:vi.fn((path:string)=>{throw new Error(`REDIRECT:${path}`);})}));
 vi.mock("@/app/auth/actions",()=>({authenticate:m.authenticate,logout:vi.fn()}));
 vi.mock("@/lib/auth/session",()=>({requireAccount:m.account}));
-vi.mock("next/navigation",()=>({redirect:m.redirect}));
+vi.mock("next/navigation",()=>({redirect:m.redirect,usePathname:()=>"/professional",useSearchParams:()=>new URLSearchParams()}));
 import { SignupForm } from "@/components/auth/signup-form";
 import { AuthPage } from "@/components/auth/auth-page";
 import ProfessionalLayout from "@/app/professional/(workspace)/layout";
