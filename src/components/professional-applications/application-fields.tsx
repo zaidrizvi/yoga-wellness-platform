@@ -19,8 +19,8 @@ export function ApplicationFields({application,categories,defaultName="",default
     <label>Specializations (optional)<textarea name="specializations" maxLength={1500} defaultValue={application?.specializations}/></label>
     </fieldset><fieldset className="form-section"><legend>Where you can visit</legend>
     <input type="hidden" name="service_locations" value={application?.service_locations??""}/><input type="hidden" name="postal_codes" value={application?.postal_codes.join(", ")??""}/>
-    {localities.length>0&&<input type="hidden" name="use_locality_catalog" value="yes"/>}<LocationMultiSelect options={localities} defaultValues={application?.requested_locality_ids}/>
-    {!localities.length&&<p className="booking-help">Named-location selection awaits verified active locality configuration. Existing saved location details are preserved; draft saving remains available.</p>}
+    {localities.length>0&&<input type="hidden" name="use_locality_catalog" value="yes"/>}<LocationMultiSelect options={localities} defaultValues={application?.requested_locality_ids} help="Choose up to 20 Delhi localities where you would like to work, including areas not currently served. No PIN entry is needed. These are application preferences; bookable coverage requires separate administrator approval."/>
+    {!localities.length&&<p className="booking-help">The locality catalog could not be loaded. Please refresh to try again. Existing saved location details are preserved.</p>}
     </fieldset>
   </ActionForm>;
 }

@@ -21,6 +21,7 @@ export async function saveApplication(_:FormState,form:FormData):Promise<FormSta
   if(form.get("use_locality_catalog")==="yes"){
     const ids=z.array(z.uuid()).max(20).safeParse(form.getAll("locality_ids"));if(!ids.success)return {error:"Choose valid named service localities."};
     const r=await marketplaceRpc(supabase,"save_application_localities",{p_details:details.data,p_locality_ids:ids.data,p_application_id:identity.data.application_id??null,p_expected_updated_at:identity.data.updated_at??null});
+    if(r.error?.code==="22023"&&r.error.message.includes("active named Delhi localities"))return {error:"Saving locality preferences requires the applicant-locality database update. Your selections have not been saved yet."};
     return saved(r.error,`Draft saved. Application reference: ${r.data}. Locality choices do not grant professional coverage.`);
   }
   const {data,error}=await supabase.rpc("save_professional_application",{p_details:details.data,p_application_id:identity.data.application_id,p_expected_updated_at:identity.data.updated_at});

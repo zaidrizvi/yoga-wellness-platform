@@ -1,4 +1,4 @@
-import { activeLocalities } from "@/lib/marketplace/data";
+import { catalogLocalities } from "@/lib/marketplace/data";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireAccount } from "@/lib/auth/session";
@@ -17,7 +17,7 @@ export default async function Apply(){
   if(!user.email_confirmed_at)return <><h1>Confirm your email first.</h1><p>Open your account confirmation email before continuing your professional application.</p><Link href="/professional/login" className="text-link">Return to professional login</Link></>;
   const [application,categoriesResult,profileResult]=await Promise.all([ownApplication(supabase,user.id),supabase.from("service_categories").select("id,name").eq("is_active",true).order("display_order"),supabase.from("profiles").select("full_name,phone").eq("id",user.id).maybeSingle()]);
   if(application&&["submitted","approved"].includes(application.state))redirect("/professional/application-status");
-  const locations=await activeLocalities();
+  const locations=await catalogLocalities();
   const categories=requireData(categoriesResult);if(profileResult.error)throw new Error("Your contact information is temporarily unavailable.");
   let paths:string[]=[];
   if(application){const listed=await supabase.storage.from("professional-applications").list(`${user.id}/${application.id}`,{limit:100});if(listed.error)throw new Error("Your private credentials could not be loaded.");paths=(listed.data??[]).filter(o=>o.id).map(o=>`${user.id}/${application.id}/${o.name}`);}

@@ -70,3 +70,14 @@ Pre/post hosted read-only fingerprints match exactly for all 2,258 locality IDs 
 ## Local checkpoint
 
 The earlier complete implementation is committed as `e95b3ee`. This deployment/configuration follow-up is committed locally with this report. The unrelated `next-env.d.ts` modification is preserved and excluded. No GitHub push. All three Phase 4E migrations are applied. No geographic activation or further hosted change was performed or is authorized by this report.
+## Applicant locality selector correction — 25 October 2026
+
+The professional application form was incorrectly sourcing only serviceable localities. It now loads the full public catalog, supports multiple intended-locality selections and explains that application preferences do not grant coverage. No applicant PIN entry is needed.
+
+With explicit owner approval, `20261025120000_applicant_locality_preferences.sql` was applied alone to `nubblifjxikhpdvkgztt`. It updates the guarded save/submission functions and the matching submission-completeness constraint so legitimate catalog names can be saved/submitted before service mappings exist. The server derives any available postal routing only from actual verified active mappings; it never invents a PIN. Existing legacy postal-based applications remain valid. Confirmed-email, owned-application, version, qualification, credential, consent, role-promotion and independent coverage-approval rules remain. Anonymous EXECUTE stays denied; both definers retain empty search paths.
+
+Verification: TypeScript and focused ESLint passed. The applicant component regression passed for searching, choosing multiple unmapped names and removing a selection. Disposable local PostgreSQL regression passed for save/submit with an unmapped Saket preference, deduplication, NULL rejection, foreign-applicant denial, mandatory credentials/consent, retained customer role and zero activation/coverage/public eligibility. The initial local regression exposed the original table's postal-only completeness constraint; the pending correction was updated to preserve its other requirements while accepting named preferences, and the focused retest passed. These are local Auth/Storage stubs, not real email/upload acceptance.
+
+Hosted read-only verification confirmed the migration history entry, all 2,258 catalog names, both updated functions, the preference-aware constraint, denied anonymous EXECUTE and empty definer search paths. No genuine applicant, role, coverage or booking record was mutated during verification. Final successful authenticated submission should be manually accepted with the owner's legitimate account and credentials. The owner additionally authorized pushing this focused correction to GitHub branch `staging`; no Phase 4F fixture setup or Phase 5 work was resumed.
+
+The final production build also passed before the staging push. No unrelated files or supplied business-requirements document are included in the correction commit.
