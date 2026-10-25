@@ -19,7 +19,7 @@ function CheckEmail({ email, correctEmail, professional, destination }: { email:
     <p>You must open your confirmation email and follow its link to activate your new account.</p>
     <p>Email address entered:<br /><strong className="confirmation-email">{email}</strong></p>
     <p>Check your spam or junk folder too. We cannot confirm email delivery. If you already have an account, you can log in instead.</p>
-    <div className="account-links"><Link href={professional ? `/professional/login?next=${encodeURIComponent(destination)}` : "/login"} className="text-link">Already confirmed? Login</Link><button type="button" className="text-link" onClick={correctEmail}>Correct email address</button></div>
+    <div className="account-links"><Link href={professional ? `/professional/login?next=${encodeURIComponent(destination)}` : destination==="/"?"/login":`/login?next=${encodeURIComponent(destination)}`} className="text-link">Already confirmed? Login</Link><button type="button" className="text-link" onClick={correctEmail}>Correct email address</button></div>
     <p className="check-email-note">This page will stay here while you check your email. Correcting your address lets you submit a new signup request; it does not change an existing account.</p>
   </section>;
 }
@@ -36,7 +36,7 @@ function SignupFields({ initialEmail, onCorrectEmail, professional, destination 
       <label>Confirm password<input name="confirmation" type="password" autoComplete="new-password" required minLength={12} maxLength={128} /></label>
       <FormFeedback error={state.error} />
       <Button type="submit" disabled={pending}>{pending ? "Please wait..." : "Create account"}</Button>
-    </form><nav className="account-links" aria-label="Account options"><Link href={professional ? "/professional/login" : "/login"}>{professional ? "Already registered? Professional login" : "Login"}</Link><Link href="/forgot-password">Forgot password</Link></nav>
+    </form><nav className="account-links" aria-label="Account options"><Link href={professional ? "/professional/login" : destination==="/"?"/login":`/login?next=${encodeURIComponent(destination)}`}>{professional ? "Already registered? Professional login" : "Login"}</Link><Link href="/forgot-password">Forgot password</Link></nav>
   </div></section>;
 }
 

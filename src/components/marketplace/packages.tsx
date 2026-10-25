@@ -1,0 +1,3 @@
+import { marketplaceData } from "@/lib/marketplace/data";
+import { OfferingCard,MarketplaceNotice } from "./public";
+export async function MarketplacePackages(){const data=await marketplaceData({service:"personal-yoga"});const packages=data.professionals.flatMap(p=>p.offerings).filter(o=>o.offering_type==="recurring_package");return <section className="marketplace-section shell"><h2>Actual approved Yoga packages.</h2>{!data.available?<MarketplaceNotice/>:packages.length?<div className="marketplace-grid">{packages.map(o=><OfferingCard key={o.offering_id} offering={o}/>)}</div>:<p>No approved trainer packages are currently published for configured Delhi coverage.</p>}</section>;}

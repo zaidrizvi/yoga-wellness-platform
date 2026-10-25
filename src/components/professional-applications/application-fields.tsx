@@ -1,8 +1,10 @@
+import type { Locality } from "@/lib/marketplace/contracts";
+import { LocationMultiSelect } from "@/components/marketplace/location-select";
 import type { Tables } from "@/lib/supabase/database.types";
 import { ActionForm } from "@/components/auth/action-form";
 import { saveApplication } from "@/app/professional/application-actions";
 
-export function ApplicationFields({application,categories,defaultName="",defaultPhone=""}:{application:Tables<"professional_applications">|null;categories:{id:string;name:string}[];defaultName?:string;defaultPhone?:string}){
+export function ApplicationFields({application,categories,defaultName="",defaultPhone="",localities=[]}:{application:(Tables<"professional_applications">&{requested_locality_ids?:string[]})|null;localities?:Locality[];categories:{id:string;name:string}[];defaultName?:string;defaultPhone?:string}){
   return <ActionForm action={saveApplication} submit="Save application draft">
     {application&&<><input type="hidden" name="application_id" value={application.id}/><input type="hidden" name="updated_at" value={application.updated_at}/></>}
     <p className="booking-help">You may save an incomplete draft. Before submission, complete every field except specializations, upload at least one credential and consent to review. Save your latest edits before submitting.</p>
@@ -16,8 +18,9 @@ export function ApplicationFields({application,categories,defaultName="",default
     <label>Brief professional biography<textarea name="biography" maxLength={3000} defaultValue={application?.biography}/></label>
     <label>Specializations (optional)<textarea name="specializations" maxLength={1500} defaultValue={application?.specializations}/></label>
     </fieldset><fieldset className="form-section"><legend>Where you can visit</legend>
-    <label>Delhi NCR service locations<textarea name="service_locations" maxLength={1000} defaultValue={application?.service_locations}/></label>
-    <label>Service PIN codes<input name="postal_codes" inputMode="text" maxLength={200} defaultValue={application?.postal_codes.join(", ")}/><span className="booking-help">Up to 20 six-digit PINs, separated by commas or spaces. These are requested locations; application approval does not automatically authorize coverage.</span></label>
+    <input type="hidden" name="service_locations" value={application?.service_locations??""}/><input type="hidden" name="postal_codes" value={application?.postal_codes.join(", ")??""}/>
+    {localities.length>0&&<input type="hidden" name="use_locality_catalog" value="yes"/>}<LocationMultiSelect options={localities} defaultValues={application?.requested_locality_ids}/>
+    {!localities.length&&<p className="booking-help">Named-location selection awaits verified active locality configuration. Existing saved location details are preserved; draft saving remains available.</p>}
     </fieldset>
   </ActionForm>;
 }

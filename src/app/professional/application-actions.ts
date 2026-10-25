@@ -1,4 +1,5 @@
 "use server";
+import { marketplaceRpc } from "@/lib/marketplace/rpc";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { requireAccount } from "@/lib/auth/session";
@@ -17,6 +18,11 @@ export async function saveApplication(_:FormState,form:FormData):Promise<FormSta
   const identity=z.object({application_id:applicationId.optional(),updated_at:updatedAt.optional()}).safeParse({application_id:form.get("application_id")||undefined,updated_at:form.get("updated_at")||undefined});
   if(!details.success)return {error:details.error.issues[0]?.message??"Check the application details."};
   if(!identity.success)return {error:"Reload the application before saving."};
+  if(form.get("use_locality_catalog")==="yes"){
+    const ids=z.array(z.uuid()).max(20).safeParse(form.getAll("locality_ids"));if(!ids.success)return {error:"Choose valid named service localities."};
+    const r=await marketplaceRpc(supabase,"save_application_localities",{p_details:details.data,p_locality_ids:ids.data,p_application_id:identity.data.application_id??null,p_expected_updated_at:identity.data.updated_at??null});
+    return saved(r.error,`Draft saved. Application reference: ${r.data}. Locality choices do not grant professional coverage.`);
+  }
   const {data,error}=await supabase.rpc("save_professional_application",{p_details:details.data,p_application_id:identity.data.application_id,p_expected_updated_at:identity.data.updated_at});
   return saved(error,`Draft saved. Application reference: ${data}. Add your supporting credentials below, then submit for review.`);
 }

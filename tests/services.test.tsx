@@ -11,6 +11,9 @@ vi.mock("@/lib/data/public", () => ({
   servicePresentation: (row: unknown) => row,
 }));
 vi.mock("next/navigation", () => ({ notFound: () => { throw new Error("NEXT_NOT_FOUND"); } }));
+// Isolate editorial/routing assertions from async server-rendered marketplace children.
+vi.mock("@/components/fulfillment/public-offerings",()=>({ApprovedOfferings:()=>null}));
+vi.mock("@/components/marketplace/packages",()=>({MarketplacePackages:()=>null}));
 
 describe("public service content and routing", () => {
   it("renders the catalog with working links for all initial services and monthly yoga", async () => {
@@ -25,8 +28,9 @@ describe("public service content and routing", () => {
     const element = await ServicePage({ params: Promise.resolve({ slug: "personal-yoga" }) });
     render(element);
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Personal Yoga Training");
-    expect(screen.getByText("Pricing has not yet been published. Charges will be confirmed before any appointment.")).toBeInTheDocument();
-    expect(screen.getByText("Session duration will be published with confirmed service details.")).toBeInTheDocument();
+    expect(screen.getByText(/Approved professional offerings set their own prices/)).toBeInTheDocument();
+    expect(screen.getByText(/Session length comes from the selected approved offering/)).toBeInTheDocument();
+    expect(screen.getByRole("link",{name:"Choose a professional"})).toHaveAttribute("href","/professionals?service=personal-yoga");
     expect(screen.getByRole("link", { name: "Explore Monthly Personal Yoga Programs" })).toHaveAttribute("href", "/yoga-programs");
   });
 
@@ -53,7 +57,7 @@ describe("public service content and routing", () => {
   it("presents monthly options as planning examples rather than active subscriptions", () => {
     render(<YogaProgramsPage />);
     expect(screen.getByText(/Not finalized packages/)).toBeInTheDocument();
-    expect(screen.getByText(/does not imply recurring billing or automatic renewal/)).toBeInTheDocument();
+    expect(screen.getByText(/recurring billing and automatic renewal are not provided/)).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /subscribe|purchase|buy/i })).not.toBeInTheDocument();
   });
 });

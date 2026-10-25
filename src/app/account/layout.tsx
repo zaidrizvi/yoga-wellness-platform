@@ -23,6 +23,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
     { href: "/admin/bookings", label: "Bookings & appointments" },
     { href: "/admin/services/offerings", label: "Offering & price approvals" },
     { href: "/admin/coverage", label: "Coverage Management" },
+    { href: "/admin/bundles", label: "Promotional Bundles" },
     { href: "/admin/team", label: "Team Management" },
     { href: "/admin/history", label: "Review history" },
     { href: "/admin/professionals", label: "Professional reviews" },

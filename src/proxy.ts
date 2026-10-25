@@ -20,7 +20,8 @@ export async function proxy(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   const path = request.nextUrl.pathname;
   const professionalEntry = ["/professional/register", "/professional/login"].includes(path);
-  const protectedPath = path === "/account" || path.startsWith("/account/") || path === "/admin" || path.startsWith("/admin/") || path === "/book" || path.startsWith("/book/") || path === "/professional" || (path.startsWith("/professional/") && !professionalEntry) || path === "/update-password";
+  const publicOffering = /^\/book\/offering\/[0-9a-f-]{36}$/i.test(path);
+  const protectedPath = path === "/account" || path.startsWith("/account/") || path === "/admin" || path.startsWith("/admin/") || path === "/book" || (path.startsWith("/book/") && !publicOffering) || path === "/professional" || (path.startsWith("/professional/") && !professionalEntry) || path === "/update-password";
   if (!user && protectedPath) {
     const login = new URL(path === "/professional" || path.startsWith("/professional/") ? "/professional/login" : "/login", request.url);
     login.searchParams.set("next", safeRedirect(path + request.nextUrl.search));

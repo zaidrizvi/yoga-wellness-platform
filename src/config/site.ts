@@ -18,9 +18,10 @@ export const site = {
 
 export const navigation = [
   { label: "Home", href: "/" },
-  { label: "Services", href: "/services" },
-  { label: "Yoga Programs", href: "/yoga-programs" },
-  { label: "Professionals", href: "/professionals" },
+  { label: "Explore Services", href: "/services" },
+  { label: "Find Trainers", href: "/professionals" },
+  { label: "Yoga Packages", href: "/yoga-programs" },
   { label: "How It Works", href: "/how-it-works" },
-  { label: "Our Approach", href: "/about" },
+  { label: "About", href: "/about" },
+  { label: "Join as Professional", href: "/join-as-professional" },
 ] as const;

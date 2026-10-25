@@ -1,0 +1,1 @@
+export default function Loading(){return <section className="shell account-shell" role="status"><p className="eyebrow">Delhi professionals</p><h1>Finding your kind of care.</h1><p>Loading reviewed profiles and approved coverage…</p></section>;}

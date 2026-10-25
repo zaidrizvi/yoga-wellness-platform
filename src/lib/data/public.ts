@@ -5,7 +5,7 @@ import { getSupabaseConfig } from "@/lib/supabase/env";
 import { assets, getService, type Service } from "@/content/services";
 
 // Public requests deliberately have no user session; admin cookies cannot broaden results.
-function publicClient() {
+export function publicClient() {
   const { url, key } = getSupabaseConfig();
   return createClient<Database>(url, key, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }, global: { fetch: (input, init) => fetch(input, { ...init, cache: "no-store" }) } });
 }

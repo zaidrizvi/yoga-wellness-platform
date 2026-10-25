@@ -8,6 +8,13 @@ vi.mock("@supabase/ssr", () => ({ createServerClient: (_url: string, _key: strin
   return { auth: { getUser: mocks.getUser } };
 } }));
 import { proxy } from "@/proxy";
+it("allows anonymous direct-offering browsing but retains legacy request protection",async()=>{
+  mocks.getUser.mockResolvedValue({data:{user:null}});
+  const response=await proxy(new NextRequest("http://localhost:3001/book/offering/60000000-0000-4000-8000-000000000001?area=60000000-0000-4000-8000-000000000002"));
+  expect(response.headers.get("location")).toBeNull();
+  const protectedResponse=await proxy(new NextRequest("http://localhost:3001/book/personal-yoga"));
+  expect(new URL(protectedResponse.headers.get("location")!).pathname).toBe("/login");
+});
 
 it("preserves a protected destination and cookie updates on the login redirect", async () => {
   mocks.getUser.mockResolvedValue({ data: { user: null } });

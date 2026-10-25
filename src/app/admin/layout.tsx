@@ -11,6 +11,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     { href: "/admin/bookings", label: "Booking Requests & Appointments" },
     { href: "/admin/services/offerings", label: "Service & Price Approvals" },
     { href: "/admin/coverage", label: "Coverage Management" },
+    { href: "/admin/bundles", label: "Promotional Bundles" },
     { href: "/admin/team", label: "Team Management" },
     { href: "/admin/history", label: "Review History" },
     { href: "/admin/professionals", label: "Professional reviews" },

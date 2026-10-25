@@ -1,0 +1,5 @@
+import { z } from "zod";
+import { requireAccount } from "@/lib/auth/session";
+import { marketplaceRpc,marketplacePending } from "@/lib/marketplace/rpc";
+import { indiaTime } from "@/lib/fulfillment/validation";
+export async function MarketplaceAudit(){const {supabase}=await requireAccount("admin");const r=await marketplaceRpc(supabase,"admin_marketplace_audit");if(marketplacePending(r.error))return <p>Locality and bundle review history awaits Phase 4E deployment.</p>;if(r.error)throw new Error("Marketplace audit unavailable.");const rows=z.array(z.object({id:z.uuid(),entity_type:z.string(),entity_id:z.uuid(),reason:z.string(),created_at:z.string()})).parse(r.data);return <section className="account-panel"><h2>Locality, bundle & customer-choice decisions</h2>{rows.length?<ul className="event-list">{rows.map(e=><li key={e.id}>{indiaTime(e.created_at)} · {e.entity_type}<p className="booking-reference">{e.entity_id}</p><p>{e.reason}</p></li>)}</ul>:<p>No marketplace decisions recorded.</p>}<p className="booking-help">Latest 100 events. Existing booking, role and approval audit histories remain below.</p></section>;}

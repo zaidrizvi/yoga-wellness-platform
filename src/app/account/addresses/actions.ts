@@ -6,9 +6,20 @@ import { revalidatePath } from "next/cache";
 import { requireAccount } from "@/lib/auth/session";
 import { addressSchema } from "@/lib/booking/validation";
 import type { FormState } from "@/lib/auth/validation";
+import { marketplaceRpc,marketplacePending } from "@/lib/marketplace/rpc";
+import { directReturn } from "@/lib/marketplace/contracts";
 
 export async function saveAddress(_: FormState, form: FormData): Promise<FormState> {
   const { supabase, user } = await requireAccount("customer");
+  if(form.get("locality_id")){
+    const area=z.uuid().safeParse(form.get("locality_id")),delivery=z.uuid().safeParse(form.get("service_area_id"));
+    const details=addressSchema.omit({locality:true,city:true,state:true,postal_code:true}).safeParse(Object.fromEntries(form));
+    const id=form.get("address_id")||null;
+    if(!area.success||!delivery.success||!details.success||(id&&!z.uuid().safeParse(id).success))return {error:"Choose a verified locality and named delivery area, and check your contact/address details."};
+    const r=await marketplaceRpc(supabase,"save_locality_address",{p_id:id as string|null,p_locality:area.data,p_service_area:delivery.data,p_details:details.data});
+    if(r.error)return {error:marketplacePending(r.error)?"Named-locality addresses require Phase 4E deployment.":"The mapped address could not be saved. Review its area and contact details."};
+    revalidatePath("/account/addresses");const back=directReturn(form.get("return_to"));if(back)redirect(back);return {success:"Address saved with verified locality routing."};
+  }
   const parsed = addressSchema.safeParse(Object.fromEntries(form));
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the address fields." };
   const id = form.get("address_id");

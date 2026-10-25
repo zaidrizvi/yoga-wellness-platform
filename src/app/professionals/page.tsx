@@ -1,22 +1,10 @@
-import Link from "next/link";
-import { publicProfessionals } from "@/lib/data/public";
-export const dynamic = "force-dynamic";
-import { ArrowUpRight } from "lucide-react";
-import { professionalApproach } from "@/content/professionals";
-import { PageHero } from "@/components/public/page-hero";
-import { AppointmentNote } from "@/components/public/appointment-note";
-import { EditorialImage } from "@/components/home/editorial-image";
-import { assets } from "@/content/services";
+import { publishedServices } from "@/lib/data/public";
+import { marketplaceData } from "@/lib/marketplace/data";
+import { DiscoveryFilters,ProfessionalCard,MarketplaceNotice } from "@/components/marketplace/public";
 import { pageMetadata } from "@/lib/metadata";
-
-export const metadata = pageMetadata("Our Wellness Professionals Approach", "Learn how Aara intends to review professional qualifications, consider suitable assignment, and support instructor continuity. Genuine profiles are pending.", "/professionals");
-
-export default async function ProfessionalsPage() {
-  const professionals = await publicProfessionals();
-  return <>
-    <PageHero eyebrow="The people behind the care" title="Personal wellness." emphasis="A human connection." description="The right professional matters. We are building an approach that considers service-specific qualifications, relevant experience, and the fit between a person and your needs." action={{ href: "#professional-approach", label: "Our intended approach" }} />
-    <section id="professional-approach" className="professional-section" aria-labelledby="professional-title"><div className="shell professional-layout section-space"><div><EditorialImage {...assets.botanical} /><p className="professional-caption">Care begins with the person.<br /><em>Trust begins with clarity.</em></p></div><div><p className="eyebrow">A considered review, before assignment</p><h2 id="professional-title">Quality is a process.<br /><em>Not just a promise.</em></h2><div className="approach-list professional-principles">{professionalApproach.map((item, i) => <article key={item.title}><span>0{i + 1}</span><div><h3>{item.title}</h3><p>{item.description}</p></div></article>)}</div></div></div></section>
-    <section className="profiles-state shell" aria-labelledby="profiles-title"><p className="eyebrow">The people behind the care</p><h2 id="profiles-title">Meet the professionals.</h2>{professionals.length ? <div className="directory-grid">{professionals.map(person => <article className="account-panel" key={person.professional_id}><h3>{person.display_name}</h3><p>{person.biography}</p>{person.qualifications_description && <p>Qualifications: {person.qualifications_description}</p>}{person.experience_description && <p>Experience: {person.experience_description}</p>}</article>)}</div> : <p>Verified professional profiles are not currently available for display. Please check back as reviewed profiles become available.</p>}<div className="account-links"><Link href="/services" className="text-link">Explore the services<ArrowUpRight size={17} aria-hidden="true" /></Link><Link href="/how-it-works" className="text-link">How it works</Link></div></section>
-    <AppointmentNote />
-  </>;
+export const dynamic="force-dynamic";
+export const metadata=pageMetadata("Find Verified Wellness Professionals in Delhi","Browse reviewed professionals and approved offerings. Choose an optional Delhi locality, compare services and request your preferred trainer.","/professionals");
+export default async function Directory({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}){
+ const query=await searchParams;const [data,services]=await Promise.all([marketplaceData(query),publishedServices()]);
+ return <section className="shell account-shell"><p className="eyebrow">Your wellness, your choice</p><h1>Find your kind of care.</h1><p>Explore eligible, verified professionals across our configured Delhi service region. Choose a locality only if you want to narrow your search. No account is needed to browse.</p><DiscoveryFilters localities={data.localities} services={services} query={query} available={data.available}/>{!data.available?<MarketplaceNotice/>:data.invalid?<p role="alert">That filter or locality is unavailable. Clear the filters or choose an active Delhi area.</p>:<><p role="status">{data.professionals.length} professional{data.professionals.length===1?"":"s"} found{query.area?" for your selected locality":" · All Delhi"}.</p><div className="marketplace-grid">{data.professionals.map(p=><ProfessionalCard key={p.professional_id} person={p} area={query.area}/>)}</div>{!data.professionals.length&&<p className="marketplace-empty">No approved professionals match these filters. Try another service or clear the location. Availability is never guaranteed.</p>}</>}</section>;
 }
