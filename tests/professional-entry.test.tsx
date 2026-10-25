@@ -11,7 +11,7 @@ import ProfessionalLayout from "@/app/professional/(workspace)/layout";
 beforeEach(()=>vi.clearAllMocks());
 it("offers dedicated registration using the same Auth action and safe continuation",()=>{
   const {container}=render(<SignupForm professional next="/professional/apply"/>);
-  expect(screen.getByRole("heading",{name:"Begin your professional application."})).toBeVisible();expect(screen.getByText(/remains a customer/)).toBeVisible();expect(container.querySelector('input[name="next"]')).toHaveValue("/professional/apply");expect(container.querySelector('input[name="mode"]')).toHaveValue("signup");
+  expect(screen.getByRole("heading",{name:"Join Aara as a Professional"})).toBeVisible();expect(screen.getByText(/apply to offer wellness services/)).toBeVisible();expect(container.querySelector('input[name="next"]')).toHaveValue("/professional/apply");expect(container.querySelector('input[name="mode"]')).toHaveValue("signup");
   expect(screen.getByRole("link",{name:/Already registered/})).toHaveAttribute("href","/professional/login");
 });
 it("keeps absent next empty on dedicated login so server database roles choose the destination",()=>{
@@ -26,5 +26,5 @@ it("redirects a pending customer away from all workspace children",async()=>{
   m.account.mockResolvedValue({role:"customer"});await expect(ProfessionalLayout({children:<p>Private tools</p>})).rejects.toThrow("REDIRECT:/professional/application-status");
 });
 it("renders the dedicated navigation for an authorized professional",async()=>{
-  m.account.mockResolvedValue({role:"professional"});render(await ProfessionalLayout({children:<p>Practice overview</p>}));expect(screen.getByRole("link",{name:"Dashboard Overview"})).toHaveAttribute("href","/professional");expect(screen.getByRole("link",{name:"My Appointments"})).toHaveAttribute("href","/professional/appointments");
+  m.account.mockResolvedValue({role:"professional"});render(await ProfessionalLayout({children:<p>Practice overview</p>}));expect(screen.getByRole("link",{name:"Overview"})).toHaveAttribute("href","/professional");expect(screen.getByRole("link",{name:"Appointments"})).toHaveAttribute("href","/professional/appointments");
 });

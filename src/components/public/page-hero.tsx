@@ -11,9 +11,9 @@ export function PageHero({ eyebrow, title, emphasis, description, image, action,
     <div className="page-hero-copy">
       <nav aria-label="Breadcrumb" className="breadcrumbs"><Link href="/">Home</Link><span aria-hidden="true">/</span>{parent && <><Link href={parent.href}>{parent.label}</Link><span aria-hidden="true">/</span></>}<span>{eyebrow}</span></nav>
       <p className="eyebrow">{eyebrow} · At home in Delhi NCR</p>
-      <h1 id="page-title">{title}<br /><em>{emphasis}</em></h1>
+      <h1 id="page-title">{title} <em>{emphasis}</em></h1>
       <p className="page-introduction">{description}</p>
-      {action && <Link href={action.href} className="text-link">{action.label}<ArrowUpRight size={17} aria-hidden="true" /></Link>}
+      {action && <Link href={action.href} className="primary-link">{action.label}<ArrowUpRight size={17} aria-hidden="true" /></Link>}
     </div>
     {image && <EditorialImage {...image} priority />}
   </section>;

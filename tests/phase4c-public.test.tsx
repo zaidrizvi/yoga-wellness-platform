@@ -13,7 +13,7 @@ it("never displays legacy platform numbers as a trainer booking quote",()=>{
   expect(screen.getByText(/Approved professional offerings set their own prices/)).toBeVisible();expect(screen.queryByText(/12,345/)).not.toBeInTheDocument();expect(screen.queryByText(/777 minutes/)).not.toBeInTheDocument();
 });
 it("explains both customer agreement and professional acceptance",()=>{
-  const content=appointmentJourney.map(s=>s.description).join(" ");expect(content).toMatch(/Explicitly accept or decline/);expect(content).toMatch(/professional must accept/);expect(content).not.toMatch(/No request form is live/);
+  const content=appointmentJourney.map(s=>s.description).join(" ");expect(content).toMatch(/explicitly accept or decline/);expect(content).toMatch(/trainer must accept/);expect(content).not.toMatch(/No request form is live/);
 });
 it("includes recruitment and published services in the canonical sitemap",async()=>{
   const rows=await sitemap();expect(rows.map(r=>r.url)).toContain("https://aara.example/join-as-professional");expect(rows.map(r=>r.url)).toContain("https://aara.example/services/personal-yoga");

@@ -32,8 +32,8 @@ describe("public homepage", () => {
       else expect(validRoutes.has(href!.split("#")[0].split("?")[0])).toBe(true);
     });
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
-    expect(screen.getByRole("heading",{level:1})).toHaveTextContent("Your Wellness Journey,Your Way.");
-    expect(screen.getByText(/Browse freely. No signup/)).toBeInTheDocument();
+    expect(screen.getByRole("heading",{level:1})).toHaveTextContent("Find your yoga instructor in Delhi.");
+    expect(screen.getByText(/Browse all of Delhi without signing up/)).toBeInTheDocument();
     expect(screen.getByText(/Trainer discovery and direct booking are temporarily unavailable/)).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /book|pay|sign in/i })).not.toBeInTheDocument();
   });

@@ -13,7 +13,7 @@ export function MobileNav() {
       <SheetTrigger asChild><Button variant="ghost" aria-label="Open navigation"><Menu aria-hidden="true" /></Button></SheetTrigger>
       <SheetContent>
         <SheetTitle className="font-heading text-4xl text-primary">{site.name.toLowerCase()}.</SheetTitle>
-        <SheetDescription className="mt-3 max-w-56 text-sm text-muted-foreground">A little more space for your wellbeing.</SheetDescription>
+        <SheetDescription className="mt-3 max-w-56 text-sm text-muted-foreground">Find verified wellness professionals across Delhi.</SheetDescription>
         <Navigation mobile />
         <AuthNavigation mobile />
         <p className="mt-auto pt-10 text-xs tracking-widest uppercase text-muted-foreground">Preparing to launch · Delhi NCR</p>
