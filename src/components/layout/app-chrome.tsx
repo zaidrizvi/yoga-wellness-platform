@@ -8,8 +8,9 @@ const publicProfessionalRoutes = ["/professional/login", "/professional/register
 
 export function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const professionalWorkspace = pathname === "/professional" || pathname.startsWith("/professional/");
   const workspace = pathname.startsWith("/admin") ||
-    (pathname.startsWith("/professional") && !publicProfessionalRoutes.some((route) => pathname.startsWith(route)));
+    (professionalWorkspace && !publicProfessionalRoutes.some((route) => pathname.startsWith(route)));
   if (workspace) return <main id="main" className="workspace-main" tabIndex={-1}>{children}</main>;
   return <><Header /><main id="main" tabIndex={-1}>{children}</main><Footer /></>;
 }
