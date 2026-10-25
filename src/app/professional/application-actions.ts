@@ -1,5 +1,5 @@
 "use server";
-import { marketplaceRpc } from "@/lib/marketplace/rpc";
+import { marketplacePending,marketplaceRpc } from "@/lib/marketplace/rpc";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { requireAccount } from "@/lib/auth/session";
@@ -9,7 +9,7 @@ import { applicationDetails,applicationId,updatedAt,documentFilename,credentialK
 
 function saved(error:{code?:string;message:string}|null,success:string):FormState{
   if(error)return {error:["22023","40001","42501"].includes(error.code??"")?error.message:error.code==="23505"?"An application already exists. Reload to continue it.":"The change could not be confirmed. Reload your application before trying again."};
-  for(const path of ["/professional/apply","/professional/application-status","/professional","/admin/professionals","/professionals"])revalidatePath(path);
+  for(const path of ["/professional/apply","/professional/application-status","/professional","/admin/professionals","/professionals","/","/admin/coverage"])revalidatePath(path);
   return {success};
 }
 export async function saveApplication(_:FormState,form:FormData):Promise<FormState>{
@@ -63,8 +63,13 @@ export async function openApplicationCredential(_:FormState,form:FormData):Promi
 }
 export async function reviewApplication(_:FormState,form:FormData):Promise<FormState>{
   const {supabase}=await requireAccount("admin");
-  const parsed=z.object({application_id:applicationId,updated_at:updatedAt,decision:z.enum(["approve","reject"]),feedback:z.string().trim().min(1).max(1000),confirmed:z.literal("yes")}).safeParse(Object.fromEntries(form));
+  const parsed=z.object({application_id:applicationId,updated_at:updatedAt,decision:z.enum(["approve","reject","approve_locations"]),feedback:z.string().trim().min(1).max(1000),confirmed:z.literal("yes")}).safeParse(Object.fromEntries(form));
   if(!parsed.success)return {error:"Choose a decision, provide feedback and confirm the reviewed application."};
-  const {error}=await supabase.rpc("review_professional_application",{p_application_id:parsed.data.application_id,p_expected_updated_at:parsed.data.updated_at,p_decision:parsed.data.decision,p_feedback:parsed.data.feedback,p_publish_profile:form.get("publish_profile")==="yes"});
-  return saved(error,parsed.data.decision==="approve"?"Application approved and professional access enabled atomically. Offerings and prices still require separate approval.":"Changes requested. The applicant can revise and resubmit; no professional role was granted.");
+  const ids=z.array(z.uuid()).max(20).safeParse(form.getAll("review_locality"));
+  if(!ids.success)return {error:"Reload the requested localities before reviewing."};
+  const reviews=ids.data.map(id=>({id,decision:String(form.get(`locality_decision_${id}`)??""),updated_at:String(form.get(`locality_version_${id}`)??"")}));
+  if(parsed.data.decision!=="reject"&&(!reviews.length||reviews.some(r=>!["authorize","exclude"].includes(r.decision))))return {error:"Review every requested locality: explicitly authorize it or exclude it with feedback."};
+  const {error}=await marketplaceRpc(supabase,"review_application_with_localities",{p_application:parsed.data.application_id,p_expected_updated_at:parsed.data.updated_at,p_decision:parsed.data.decision,p_feedback:parsed.data.feedback,p_publish_profile:form.get("publish_profile")==="yes",p_reviews:reviews});
+  if(marketplacePending(error))return {error:"Combined application and locality approval requires the pending database migration. No decision was saved."};
+  return saved(error,parsed.data.decision!=="reject"?"Trainer and reviewed locality coverage approved together. Published verified profiles are discoverable; services, prices and booking availability still require approval/setup.":"Changes requested. The applicant can revise and resubmit; no professional role was granted.");
 }

@@ -29,9 +29,22 @@ describe("professional onboarding actions (mocked Supabase)",()=>{
   });
   it("approves only through the atomic admin RPC and never reports failed promotion as approved",async()=>{
     m.rpc.mockResolvedValue({data:null,error:{code:"42501",message:"Administrator required"}});
-    const output=await reviewApplication({},form({application_id:id,updated_at:stamp,decision:"approve",feedback:"Reviewed",confirmed:"yes",publish_profile:"yes"}));
+    const output=await reviewApplication({},form({application_id:id,updated_at:stamp,decision:"approve",feedback:"Reviewed",confirmed:"yes",publish_profile:"yes",review_locality:id,[`locality_decision_${id}`]:"authorize",[`locality_version_${id}`]:stamp}));
     expect(m.account).toHaveBeenCalledWith("admin");expect(output.error).toBe("Administrator required");expect(output.success).toBeUndefined();
-    expect(m.rpc).toHaveBeenCalledWith("review_professional_application",{p_application_id:id,p_expected_updated_at:stamp,p_decision:"approve",p_feedback:"Reviewed",p_publish_profile:true});expect(m.rpc).toHaveBeenCalledTimes(1);expect(m.revalidate).not.toHaveBeenCalled();
+    expect(m.rpc).toHaveBeenCalledWith("review_application_with_localities",{p_application:id,p_expected_updated_at:stamp,p_decision:"approve",p_feedback:"Reviewed",p_publish_profile:true,p_reviews:[{id,decision:"authorize",updated_at:stamp}]});expect(m.rpc).toHaveBeenCalledTimes(1);expect(m.revalidate).not.toHaveBeenCalled();
+  });
+  it("blocks incomplete locality decisions before calling the database",async()=>{
+    const output=await reviewApplication({},form({application_id:id,updated_at:stamp,decision:"approve",feedback:"Reviewed",confirmed:"yes",review_locality:other}));
+    expect(output.error).toMatch(/every requested locality/);expect(m.rpc).not.toHaveBeenCalled();
+  });
+  it("offers existing-trainer remediation without a direct role change",async()=>{
+    const output=await reviewApplication({},form({application_id:id,updated_at:stamp,decision:"approve_locations",feedback:"Reviewed",confirmed:"yes",review_locality:other,[`locality_decision_${other}`]:"authorize",[`locality_version_${other}`]:stamp}));
+    expect(output.success).toBeTruthy();expect(m.rpc.mock.calls[0][0]).toBe("review_application_with_localities");expect(m.rpc.mock.calls[0][1].p_decision).toBe("approve_locations");expect(m.rpc).toHaveBeenCalledTimes(1);
+  });
+  it("reports the deployment dependency honestly without recording success",async()=>{
+    m.rpc.mockResolvedValue({data:null,error:{code:"PGRST202",message:"Function unavailable"}});
+    const output=await reviewApplication({},form({application_id:id,updated_at:stamp,decision:"reject",feedback:"Needs changes",confirmed:"yes"}));
+    expect(output.error).toMatch(/pending database migration/);expect(output.success).toBeUndefined();expect(m.revalidate).not.toHaveBeenCalled();
   });
   it("rejects operations before mutation when account authorization fails",async()=>{
     m.account.mockRejectedValue(new Error("Restricted"));await expect(saveApplication({},form(detail))).rejects.toThrow("Restricted");expect(m.rpc).not.toHaveBeenCalled();

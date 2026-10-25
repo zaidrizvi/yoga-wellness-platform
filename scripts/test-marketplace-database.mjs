@@ -28,7 +28,7 @@ try{
   const source=readFileSync(`supabase/migrations/${file}`,'utf8');await parse(source);sql(`begin;\n${source}\ncommit;`);
   console.log(`LOCAL compatibility PASS: ${file}`);
  }
- const testFile=process.argv.includes('--locality-coverage')?'supabase/tests/security/locality-coverage.test.sql':process.argv.includes('--applicant-localities')?'supabase/tests/security/applicant-localities.test.sql':process.argv.includes('--catalog-only')?'supabase/tests/security/marketplace-catalog.test.sql':'supabase/tests/security/marketplace.test.sql';
+ const testFile=process.argv.includes('--application-coverage')?'supabase/tests/security/application-coverage.test.sql':process.argv.includes('--locality-coverage')?'supabase/tests/security/locality-coverage.test.sql':process.argv.includes('--applicant-localities')?'supabase/tests/security/applicant-localities.test.sql':process.argv.includes('--catalog-only')?'supabase/tests/security/marketplace-catalog.test.sql':'supabase/tests/security/marketplace.test.sql';
  const tests=readFileSync(testFile,'utf8');await parse(tests);console.log(sql(tests));
  console.log('PASS: focused Phase 4E SQL on real local PostgreSQL, with minimal Auth/Storage catalog stubs. No hosted access.');
 }finally{if(started)run('pg_ctl',['-D',data,'-m','immediate','-w','stop']);}
