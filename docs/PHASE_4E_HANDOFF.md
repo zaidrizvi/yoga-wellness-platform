@@ -81,3 +81,9 @@ Verification: TypeScript and focused ESLint passed. The applicant component regr
 Hosted read-only verification confirmed the migration history entry, all 2,258 catalog names, both updated functions, the preference-aware constraint, denied anonymous EXECUTE and empty definer search paths. No genuine applicant, role, coverage or booking record was mutated during verification. Final successful authenticated submission should be manually accepted with the owner's legitimate account and credentials. The owner additionally authorized pushing this focused correction to GitHub branch `staging`; no Phase 4F fixture setup or Phase 5 work was resumed.
 
 The final production build also passed before the staging push. No unrelated files or supplied business-requirements document are included in the correction commit.
+
+### Correct staging database target — 25 October 2026
+
+Render `aara-staging` uses a separate Supabase project: **`aara-staging`, `ijnngoyeyucsgviuyvgc`**. The earlier applicant-locality deployment to `nubblifjxikhpdvkgztt` did not update this staging database. A read-only staging inspection confirmed the old validation was still present. With explicit owner approval, a dry run showed only `20261025120000_applicant_locality_preferences.sql` pending; it was then applied successfully to `ijnngoyeyucsgviuyvgc` using an explicit project override and `--skip-vault`. No seeds, roles, previous migrations or genuine records were modified.
+
+Post-deployment read-only checks on `ijnngoyeyucsgviuyvgc` passed: migration recorded, 2,258 catalog names, preference-aware save/submit functions and completeness constraint, empty definer search paths, and no anonymous save/submit EXECUTE. The original repository link and local environment were not silently changed. No frontend redeployment is required for this database-only correction; retry the legitimate application's save action. A successful authenticated save remains for the owner to exercise.
