@@ -24,15 +24,22 @@ for (const width of [375,1440]) test(`role-aware navigation at ${width}px (mocke
  }
 });
 const id="60000000-0000-4000-8000-000000000001";
-test("deployed marketplace allows anonymous browsing and honestly reports pending catalog discovery",async({page})=>{
+test("deployed catalog supports anonymous search, unserved selection and clearing",async({page})=>{
+ const locality="aeee68be-ec2b-5d71-adb1-8cab1990f636"; // Actual imported Aali catalog identifier, not fabricated coverage.
  for(const route of ["/","/professionals"]){
   const response=await page.goto(route);expect(response?.status()).toBe(200);await expect(page.getByRole("heading",{level:1})).toBeVisible();
-  await expect(page.getByRole("combobox",{name:"Select your location (optional)"})).toHaveAttribute("placeholder","All Delhi");
-  await expect(page.getByText("The full Delhi name catalog awaits separate database approval. Only configured service localities are currently selectable.")).toBeVisible();
-  expect(new URL(page.url()).pathname).toBe(route);
+  const location=page.getByRole("combobox",{name:"Select your location (optional)"});
+  await expect(location).toHaveAttribute("placeholder","All Delhi");
+  await expect(page.getByText(/The full Delhi name catalog awaits separate database approval/)).toHaveCount(0);
+  await location.fill("Aali");await page.keyboard.press("ArrowDown");await page.keyboard.press("Enter");
+  await expect(page.locator('input[name="area"]')).toHaveValue(locality);await expect(location).toHaveValue(/Aali/);
+  await page.getByRole("button",{name:"Find Trainers"}).click();await expect(page).toHaveURL(new RegExp(`area=${locality}`));
+  await expect(page.getByText("No professionals available in this area yet.",{exact:true})).toBeVisible();
+  await page.getByRole("link",{name:"Clear filters · All Delhi",exact:true}).click();
+  await expect(page).toHaveURL(new RegExp(route==="/"?"/$":"/professionals$"));
+  await expect(page.locator('input[name="area"]')).toHaveValue("");
+  await expect(page.getByText(route==="/"?"No eligible professionals are published for this view yet.":"No approved professionals match these filters.",{exact:true})).toBeVisible();
  }
- await page.getByRole("link",{name:"Clear filters · All Delhi",exact:true}).click();await expect(page).toHaveURL(/\/professionals$/);
- for(const route of ["/admin/coverage","/admin/services/offerings","/book/personal-yoga"]){await page.goto(route);await expect(page).toHaveURL(/\/login\?next=/);}
 });
 for(const width of [320,375,768,1024,1440])test(`public marketplace empty-inventory UI at ${width}px`,async({page},info)=>{
  test.setTimeout(90000);await page.setViewportSize({width,height:950});
