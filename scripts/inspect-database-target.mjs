@@ -27,7 +27,7 @@ for (const table of ['services', 'profiles', 'user_roles']) {
     const response = await fetch(`${url}/rest/v1/${table}?select=*&limit=0`, {
       headers: { apikey: key }, signal: AbortSignal.timeout(5000),
     });
-    console.log(`${table}: HTTP ${response.status()}, read-only zero-record request.`);
+    console.log(`${table}: HTTP ${response.status}, read-only zero-record request.`);
   } catch { console.log(`${table}: unavailable; no schema-state inference made.`); }
 }
 console.log('Public credentials cannot inspect remote migration history; trusted CLI/database access is required.');
