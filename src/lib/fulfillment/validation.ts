@@ -28,7 +28,7 @@ export const offeringInput = z.object({
 export const weeklyWindow = z.object({ iso_weekday: z.coerce.number().int().min(1).max(7), start_time: z.string().regex(/^\d{2}:\d{2}$/), end_time: z.string().regex(/^\d{2}:\d{2}$/) }).refine(v => v.start_time < v.end_time, "End time must follow start time");
 
 export const statusLabels: Record<string, string> = {
-  pending: "Pending review", awaiting_customer_agreement: "Awaiting your agreement", assignment_proposed: "Awaiting professional response",
+  pending: "Awaiting Trainer", awaiting_customer_agreement: "Awaiting Your Confirmation", assignment_proposed: "Awaiting Trainer",
   confirmed: "Confirmed", in_progress: "In progress", completed: "Completed", cancelled: "Cancelled", requires_rescheduling: "Requires reassignment",
   proposed: "Proposed", accepted: "Accepted", declined: "Declined", expired: "Expired", invalidated: "Eligibility changed", reassigned: "Reassigned",
 };

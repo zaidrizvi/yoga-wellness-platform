@@ -7,11 +7,12 @@ export const dynamic = "force-dynamic";
 export const metadata = { robots: { index: false, follow: false } };
 export default async function AccountLayout({ children }: { children: React.ReactNode }) {
   const { role } = await requireAccount();
-  const links = [{ href: "/account", label: "Personal profile" }, ...(role === "customer" ? [
-    { href: "/professional/application-status", label: "Professional application" },
-    { href: "/account/addresses", label: "Saved addresses" },
-    { href: "/account/bookings", label: "Booking requests" },
-  ] : role === "professional" ? [
+  const links = role === "customer" ? [
+    { href: "/account", label: "Overview" },
+    { href: "/account/bookings", label: "My Bookings" },
+    { href: "/account/addresses", label: "My Addresses" },
+    { href: "/account/profile", label: "My Profile" },
+  ] : [{ href: "/account", label: "Personal profile" }, ...(role === "professional" ? [
     { href: "/professional", label: "Professional dashboard" },
     { href: "/account/professional", label: "My Profile" },
     { href: "/professional/services", label: "My Services" },
