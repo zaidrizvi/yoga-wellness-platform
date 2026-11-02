@@ -6,8 +6,13 @@ import { localitySchema,professionalSchema,bundleSchema,filtersSchema } from "./
 export async function activeLocalities(){const result=await marketplaceRpc(publicClient(),"marketplace_locations");if(result.error){if(marketplacePending(result.error))return {available:false,localities:[]};throw new Error("Locality selection is temporarily unavailable.");}return {available:true,localities:z.array(localitySchema).parse(result.data)};}
 export async function catalogLocalities(){
   const result=await marketplaceRpc(publicClient(),"marketplace_catalog_locations");
-  if(result.error){if(marketplacePending(result.error))return {...await activeLocalities(),catalogAvailable:false};throw new Error("Locality catalog is temporarily unavailable.");}
+  if(result.error){console.error("marketplace_catalog_locations failed",{code:result.error.code,message:result.error.message});if(marketplacePending(result.error))return {...await activeLocalities(),catalogAvailable:false};return {available:false,catalogAvailable:false,localities:[]};}
   return {available:true,catalogAvailable:true,localities:z.array(localitySchema).parse(result.data)};
+}
+export async function professionalData(id:string){
+  const result=await marketplaceRpc(publicClient(),"marketplace_directory",{p_locality_id:null,p_service_slug:null,p_specialization:null,p_max_price:null,p_professional_id:id});
+  if(result.error){console.error("marketplace_directory profile failed",{code:result.error.code,message:result.error.message});return {available:false,professional:null};}
+  return {available:true,professional:z.array(professionalSchema).parse(result.data)[0]??null};
 }
 export async function marketplaceData(query:Record<string,string|undefined>={},professional?:string){
   const input=Object.fromEntries(Object.entries(query).filter(([,v])=>v!==""&&v!==undefined));

@@ -35,7 +35,7 @@ select set_config('test.old',pg_temp.application('66000000-0000-4000-8000-000000
 select set_config('test.hidden',pg_temp.application('66000000-0000-4000-8000-000000000004',array[current_setting('test.other')::uuid])::text,true);
 select set_config('test.version',(select updated_at::text from public.professional_applications where id=current_setting('test.app')::uuid),true);
 select set_config('test.reviews',(select jsonb_agg(jsonb_build_object('id',id,'updated_at',updated_at,'decision',case when id=current_setting('test.locality')::uuid then 'authorize' else 'exclude' end))::text from public.marketplace_localities where id in (current_setting('test.locality')::uuid,current_setting('test.other')::uuid)),true);
-select pg_temp.ok(not exists(select 1 from public.professional_service_areas where professional_id in ('66000000-0000-4000-8000-000000000002','66000000-0000-4000-8000-000000000003','66000000-0000-4000-8000-000000000004')),'submission grants no coverage');
+select pg_temp.ok(not exists(select 1 from public.professional_localities where professional_id in ('66000000-0000-4000-8000-000000000002','66000000-0000-4000-8000-000000000003','66000000-0000-4000-8000-000000000004')),'submission grants no locality authorization');
 set local role authenticated;
 select set_config('request.jwt.claim.sub','66000000-0000-4000-8000-000000000002',true);
 select pg_temp.deny(format('select public.review_application_with_localities(%L,%L,%L,%L,true,%L::jsonb)',current_setting('test.app'),current_setting('test.version'),'approve','LOCAL decision',current_setting('test.reviews')),'42501');
@@ -54,15 +54,22 @@ select pg_temp.ok((select role='professional' from public.user_roles where user_
 select pg_temp.ok(private.professional_serves_locality('66000000-0000-4000-8000-000000000002',current_setting('test.locality')::uuid),'same decision approves exact location without second approval');
 select pg_temp.ok(not private.professional_serves_locality('66000000-0000-4000-8000-000000000002',current_setting('test.other')::uuid),'excluded location not bookable');
 select pg_temp.ok(not exists(select 1 from public.marketplace_localities where id=current_setting('test.other')::uuid and is_active),'excluded location not activated');
-select pg_temp.ok((select count(*)=1 from public.professional_service_areas where professional_id<>'66000000-0000-4000-8000-000000000002'),'other trainer associations unchanged');
+select pg_temp.ok((select count(*)=1 from public.professional_localities where professional_id='66000000-0000-4000-8000-000000000002'),'only the reviewed locality is authorized');
 select pg_temp.ok(not private.professional_serves_locality('66000000-0000-4000-8000-000000000005',current_setting('test.locality')::uuid),'shared postal association does not grant another trainer new locality coverage');
 select pg_temp.ok(exists(select 1 from public.professional_application_events where application_id=current_setting('test.app')::uuid and event='approved'),'application audit retained');
-select pg_temp.ok(exists(select 1 from public.professional_offering_events where professional_id='66000000-0000-4000-8000-000000000002' and event='coverage_approved'),'coverage approval audit retained');
+select pg_temp.ok(exists(select 1 from public.marketplace_audit where new_details->>'professional_id'='66000000-0000-4000-8000-000000000002' and new_details->>'authority'='professional_localities'),'locality authorization audit retained');
 select pg_temp.ok((select count(*)=2 from public.marketplace_audit where new_details->>'application_id'=current_setting('test.app')),'authorization and exclusion audited');
 select pg_temp.ok(not exists(select 1 from public.service_areas where locality_id is not null and postal_code is not null),'no invented postal references');
 set local role anon;
 select pg_temp.ok(jsonb_array_length(public.marketplace_directory())=1,'anonymous All Delhi shows approved trainer before offerings');
 select pg_temp.ok(jsonb_array_length(public.marketplace_directory(p_service_slug=>'personal-yoga'))=0,'service filter still requires approved offering');
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claim.sub','66000000-0000-4000-8000-000000000002',true);
+select pg_temp.deny(format('insert into public.professional_localities(professional_id,locality_id,approved_by) values (%L,%L,%L)',
+ '66000000-0000-4000-8000-000000000002',current_setting('test.other'),'66000000-0000-4000-8000-000000000002'),'42501');
+select pg_temp.deny(format('select public.admin_approve_locality_coverage(array[%L::uuid],%L,%L)',current_setting('test.other'),
+ '66000000-0000-4000-8000-000000000002','self approval attempt'),'42501');
 reset role;
 -- Legacy approval followed by one-step remediation, without re-promotion.
 select set_config('request.jwt.claim.sub','66000000-0000-4000-8000-000000000001',true);
@@ -72,7 +79,7 @@ select set_config('test.old_reviews',(select jsonb_build_array(jsonb_build_objec
 -- Unsupported region must fail closed, rolling back all promotion/coverage.
 update public.marketplace_localities set region_code='IN-NCR' where id=current_setting('test.other')::uuid;
 select pg_temp.deny(format('select public.review_application_with_localities(%L,%L,%L,%L,false,%L::jsonb)',current_setting('test.old'),current_setting('test.old_version'),'approve_locations','LOCAL unsupported',current_setting('test.old_reviews')),'22023');
-select pg_temp.ok(not exists(select 1 from public.professional_service_areas where professional_id='66000000-0000-4000-8000-000000000003'),'unsupported attempt grants nothing');
+select pg_temp.ok(not exists(select 1 from public.professional_localities where professional_id='66000000-0000-4000-8000-000000000003'),'unsupported attempt grants nothing');
 update public.marketplace_localities set region_code='IN-DL' where id=current_setting('test.other')::uuid;
 select set_config('test.old_reviews',(select jsonb_build_array(jsonb_build_object('id',id,'updated_at',updated_at,'decision','authorize'))::text from public.marketplace_localities where id=current_setting('test.other')::uuid),true);
 set local role authenticated;

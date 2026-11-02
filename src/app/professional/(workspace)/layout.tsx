@@ -14,10 +14,9 @@ export default async function ProfessionalLayout({ children }: { children: React
     { href: "/professional", label: "Overview" },
     { href: "/professional/appointments", label: "Appointments" },
     { href: "/professional/services", label: "My Services" },
-    { href: "/professional/services?kind=recurring_package", label: "Packages" },
+    { href: "/professional/services?kind=recurring_package", label: "My Packages" },
     { href: "/professional/availability", label: "Availability" },
-    { href: "/professional/availability#coverage", label: "Service Areas" },
-    { href: "/account/professional", label: "Profile" },
-    { href: "/account", label: "Personal account" },
+    { href: "/professional/locations", label: "My Locations" },
+    { href: "/account/professional", label: "My Profile" },
   ]} /></div><div className="logout-area"><ActionForm action={logout} submit="Sign out" /></div></aside><div className="workspace-content">{children}</div></section>;
 }

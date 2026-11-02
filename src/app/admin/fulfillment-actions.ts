@@ -4,6 +4,7 @@ import { requireAccount } from "@/lib/auth/session";
 import type { FormState } from "@/lib/auth/validation";
 import { uuid, reason, indiaInstant } from "@/lib/fulfillment/validation";
 import { result } from "@/lib/fulfillment/action-result";
+import { marketplaceRpc } from "@/lib/marketplace/rpc";
 
 export async function reviewOffering(_: FormState, form: FormData): Promise<FormState> {
   const {supabase}=await requireAccount("admin");
@@ -25,6 +26,13 @@ export async function reviewCoverage(_: FormState, form: FormData): Promise<Form
   if(!parsed.success) return {error:"Provide a decision, feedback and confirmation."};
   const {error}=await supabase.rpc("review_professional_coverage",{p_request_id:parsed.data.request_id,p_approve:parsed.data.decision==="approve",p_feedback:parsed.data.feedback});
   return result(error,"Coverage request reviewed.");
+}
+export async function reviewLocalityRequest(_:FormState,form:FormData):Promise<FormState>{
+  const {supabase}=await requireAccount("admin");
+  const parsed=z.object({request_id:uuid,decision:z.enum(["approve","reject"]),feedback:reason,confirmed:z.literal("yes")}).safeParse(Object.fromEntries(form));
+  if(!parsed.success)return {error:"Choose a decision, add feedback and confirm."};
+  const response=await marketplaceRpc(supabase,"review_professional_locality_request",{p_request:parsed.data.request_id,p_approve:parsed.data.decision==="approve",p_feedback:parsed.data.feedback});
+  return result(response.error,"Location request reviewed.");
 }
 export async function proposeBooking(_: FormState, form: FormData): Promise<FormState> {
   const {supabase}=await requireAccount("admin");

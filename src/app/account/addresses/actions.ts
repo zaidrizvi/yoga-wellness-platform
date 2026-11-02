@@ -12,13 +12,13 @@ import { directReturn } from "@/lib/marketplace/contracts";
 export async function saveAddress(_: FormState, form: FormData): Promise<FormState> {
   const { supabase, user } = await requireAccount("customer");
   if(form.get("locality_id")){
-    const area=z.uuid().safeParse(form.get("locality_id")),delivery=z.uuid().safeParse(form.get("service_area_id"));
+    const area=z.uuid().safeParse(form.get("locality_id"));
     const details=addressSchema.omit({locality:true,city:true,state:true,postal_code:true}).safeParse(Object.fromEntries(form));
     const id=form.get("address_id")||null;
-    if(!area.success||!delivery.success||!details.success||(id&&!z.uuid().safeParse(id).success))return {error:"Choose a verified locality and named delivery area, and check your contact/address details."};
-    const r=await marketplaceRpc(supabase,"save_locality_address",{p_id:id as string|null,p_locality:area.data,p_service_area:delivery.data,p_details:details.data});
-    if(r.error)return {error:marketplacePending(r.error)?"Named-locality addresses require Phase 4E deployment.":"The mapped address could not be saved. Review its area and contact details."};
-    revalidatePath("/account/addresses");const back=directReturn(form.get("return_to"));if(back)redirect(back);return {success:"Address saved with verified locality routing."};
+    if(!area.success||!details.success||(id&&!z.uuid().safeParse(id).success))return {error:"Choose a Delhi locality and check your contact and address details."};
+    const r=await marketplaceRpc(supabase,"save_locality_address",{p_id:id as string|null,p_locality:area.data,p_service_area:null,p_details:details.data});
+    if(r.error)return {error:marketplacePending(r.error)?"Locality-based addresses require the pending database migration.":"The address could not be saved. Review its locality and contact details."};
+    revalidatePath("/account/addresses");const back=directReturn(form.get("return_to"));if(back)redirect(back);return {success:"Address saved."};
   }
   const parsed = addressSchema.safeParse(Object.fromEntries(form));
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the address fields." };

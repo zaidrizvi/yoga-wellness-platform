@@ -16,5 +16,5 @@ it("allows an applicant to search, select multiple unmapped locality names and r
  await user.click(search);await user.type(search,"Hauz");await user.keyboard("{Enter}");
  expect(Array.from(container.querySelectorAll<HTMLInputElement>('[name="locality_ids"]')).map(input=>input.value)).toEqual([first,second]);
  await user.click(screen.getByRole("button",{name:"Remove Saket"}));expect(container.querySelectorAll('[name="locality_ids"]')).toHaveLength(1);
- expect(screen.getByText(/No PIN entry is needed/)).toBeVisible();
+ expect(screen.getByText(/administrator will review these with your application/)).toBeVisible();
 });

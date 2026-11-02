@@ -1,15 +1,16 @@
-import { MarketplaceAudit } from "@/components/marketplace/audit";
-import { AdminLocalityCoverage } from "@/components/admin/locality-coverage";
-import { catalogLocalities } from "@/lib/marketplace/data";
-import { marketplaceRpc,marketplacePending } from "@/lib/marketplace/rpc";
 import Link from "next/link";
 import { z } from "zod";
 import { requireAccount } from "@/lib/auth/session";
-export const metadata={title:"Coverage Management | Aara"};
-export default async function Coverage(){
-  const {supabase}=await requireAccount("admin");
-  const [catalog,native]=await Promise.all([catalogLocalities(),marketplaceRpc(supabase,"admin_locality_coverage_overview")]);
-  if(native.error&&!marketplacePending(native.error))throw new Error("Locality coverage is temporarily unavailable.");
-  const overview=native.error?null:z.object({professionals:z.array(z.object({id:z.uuid(),name:z.string(),requested_localities:z.array(z.uuid()),approved_localities:z.array(z.uuid()),approved_offerings:z.number(),availability_windows:z.number()}))}).parse(native.data);
-  return <><Link className="text-link" href="/admin/coverage/localities">Review Delhi locality catalog</Link><Link className="text-link" href="/admin/services/offerings">Review professional coverage requests</Link><h1>Coverage Management.</h1><p>Manage supported Delhi localities and explicitly approve each trainer working areas.</p>{overview?<AdminLocalityCoverage localities={catalog.localities} professionals={overview.professionals}/>:<p role="status">The locality-first controls are ready. Their database migration must be approved and deployed before coverage decisions can be saved.</p>}<MarketplaceAudit/></>;
+import { marketplacePending,marketplaceRpc } from "@/lib/marketplace/rpc";
+import { ActionForm } from "@/components/auth/action-form";
+import { reviewLocalityRequest } from "@/app/admin/fulfillment-actions";
+const request=z.object({id:z.uuid(),professional_id:z.uuid(),professional_name:z.string(),locality_id:z.uuid(),locality_name:z.string(),district:z.string(),action:z.string(),state:z.string(),created_at:z.string()});
+export const metadata={title:"Locations | Aara"};
+export default async function Locations(){
+  const {supabase}=await requireAccount("admin");const response=await marketplaceRpc(supabase,"admin_professional_locality_requests");
+  if(response.error&&marketplacePending(response.error))return <><h1>Locations</h1><p>The locality-first migration must be deployed before location requests can be reviewed.</p></>;
+  if(response.error)throw new Error("Location requests are temporarily unavailable.");
+  const rows=z.array(request).parse(response.data);
+  return <><h1>Locations</h1><p>Review new locations requested after trainer onboarding.</p><Link className="text-link" href="/admin/coverage/localities">Delhi locality catalog</Link>
+    {!rows.length&&<p>No location requests need review.</p>}{rows.map(row=><article className="account-panel" key={row.id}><h2>{row.professional_name}</h2><p>{row.action==="add"?"Request to add":"Request to remove"} {row.locality_name} · {row.district}</p><ActionForm action={reviewLocalityRequest} submit="Save decision"><input type="hidden" name="request_id" value={row.id}/><label>Decision<select name="decision" defaultValue="approve"><option value="approve">Approve</option><option value="reject">Reject</option></select></label><label>Feedback<textarea name="feedback" required maxLength={1000}/></label><label className="checkbox-label"><input type="checkbox" name="confirmed" value="yes" required/>Confirm this location decision.</label></ActionForm></article>)}</>;
 }

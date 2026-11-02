@@ -7,7 +7,7 @@ services:
     branch: staging
     buildCommand: npm ci && npm run build
     startCommand: npm start
-    healthCheckPath: /
+    healthCheckPath: /health
     autoDeployTrigger: off
     envVars:
       - key: NODE_VERSION
