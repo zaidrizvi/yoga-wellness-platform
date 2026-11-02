@@ -1,10 +1,12 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireAccount } from "@/lib/auth/session";
 import type { FormState } from "@/lib/auth/validation";
 import { uuid, offeringInput, reason, indiaInstant, weeklyWindow, decision } from "@/lib/fulfillment/validation";
 import { result } from "@/lib/fulfillment/action-result";
+import { marketplaceRpc } from "@/lib/marketplace/rpc";
 
 export async function saveOffering(_: FormState, form: FormData): Promise<FormState> {
   const { supabase } = await requireAccount("professional");
@@ -77,6 +79,37 @@ export async function uploadCredential(_: FormState, form: FormData): Promise<Fo
   if (!kind || file.type !== kind.mime) return { error: "The file contents must match a supported PDF, JPEG or PNG type." };
   const { error } = await supabase.storage.from("professional-documents").upload(`${user.id}/${crypto.randomUUID()}.${kind.ext}`, file, { contentType: kind.mime, upsert: false });
   return result(error, "Private credential uploaded for administrator review. This does not change your verification status.");
+}
+
+export async function uploadProfilePhoto(_: FormState, form: FormData): Promise<FormState> {
+  const {supabase,user}=await requireAccount("professional");
+  const file=form.get("photo");
+  if(!(file instanceof File)||!file.size||file.size>5*1024*1024)return {error:"Choose a JPEG, PNG or WebP image up to 5 MB."};
+  const signature=new Uint8Array(await file.slice(0,12).arrayBuffer());
+  const kind=signature[0]===0xff&&signature[1]===0xd8&&signature[2]===0xff?{ext:"jpg",mime:"image/jpeg"}:
+    [137,80,78,71,13,10,26,10].every((value,index)=>signature[index]===value)?{ext:"png",mime:"image/png"}:
+    signature[0]===0x52&&signature[1]===0x49&&signature[2]===0x46&&signature[3]===0x46&&signature[8]===0x57&&signature[9]===0x45&&signature[10]===0x42&&signature[11]===0x50?{ext:"webp",mime:"image/webp"}:null;
+  if(!kind||file.type!==kind.mime)return {error:"The file contents must match a JPEG, PNG or WebP image."};
+  const path=`${user.id}/${crypto.randomUUID()}.${kind.ext}`;
+  const storage=supabase.storage.from("public-professional-images");
+  const uploaded=await storage.upload(path,file,{contentType:kind.mime,upsert:false,cacheControl:"3600"});
+  if(uploaded.error)return {error:"Your photo could not be uploaded. Please try again."};
+  const reference=`public-professional-images/${path}`;
+  const attached=await marketplaceRpc(supabase,"set_professional_profile_photo",{p_reference:reference});
+  if(attached.error){await storage.remove([path]);return {error:"Your photo was uploaded but could not be attached to your profile."};}
+  if(typeof attached.data==="string"&&attached.data.startsWith("public-professional-images/"))await storage.remove([attached.data.slice("public-professional-images/".length)]);
+  revalidatePath("/account/professional");revalidatePath("/professional");revalidatePath("/professionals");revalidatePath("/");
+  return {success:"Profile photo updated. It is visible whenever your trainer profile is published."};
+}
+
+export async function removeProfilePhoto(_: FormState, form: FormData): Promise<FormState> {
+  if(form.get("confirmed")!=="yes")return {error:"Confirm removal of your profile photo."};
+  const {supabase}=await requireAccount("professional");
+  const detached=await marketplaceRpc(supabase,"set_professional_profile_photo",{p_reference:null});
+  if(detached.error)return {error:"Your profile photo could not be removed."};
+  if(typeof detached.data==="string"&&detached.data.startsWith("public-professional-images/"))await supabase.storage.from("public-professional-images").remove([detached.data.slice("public-professional-images/".length)]);
+  revalidatePath("/account/professional");revalidatePath("/professional");revalidatePath("/professionals");revalidatePath("/");
+  return {success:"Profile photo removed."};
 }
 
 export async function openOwnCredential(_: FormState, form: FormData): Promise<FormState> {

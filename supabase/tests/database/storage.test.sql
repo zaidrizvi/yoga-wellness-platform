@@ -40,5 +40,10 @@ select lives_ok($$delete from storage.objects where bucket_id = 'professional-do
 reset role;
 select is((select count(*) from storage.objects where bucket_id = 'professional-documents'), 0::bigint, 'Admin deletion took effect');
 select ok(not exists(select 1 from pg_policies where schemaname = 'storage' and tablename = 'objects' and policyname like 'professional_documents%' and cmd = 'UPDATE'), 'No overwrite policy');
+
+select is((select public from storage.buckets where id='public-professional-images'),true,'Profile photo bucket is publicly readable');
+select is((select file_size_limit from storage.buckets where id='public-professional-images'),5242880::bigint,'Profile photos are limited to 5 MiB');
+select ok(not exists(select 1 from pg_policies where schemaname='storage' and tablename='objects' and policyname like 'professional_images%' and cmd='UPDATE'),'Profile photos cannot be overwritten');
+select throws_ok($$select public.set_professional_profile_photo('public-professional-images/10000000-0000-4000-8000-000000000006/00000000-0000-4000-8000-000000000010.jpg')$$,'42501',null,'A customer cannot claim a professional photo');
 select * from finish();
 rollback;
