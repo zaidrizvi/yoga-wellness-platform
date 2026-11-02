@@ -37,7 +37,7 @@ create policy professional_locality_requests_owner_admin on public.professional_
 
 -- Preserve already-authorized exact-locality coverage. No new authorization is inferred.
 insert into public.professional_localities(professional_id,locality_id,approved_by,approved_at)
-select distinct pa.professional_id,l.id,pa.approved_by,pa.created_at
+select distinct pa.professional_id,l.id,pa.approved_by,pa.approved_at
 from public.marketplace_localities l
 join public.locality_service_areas m on m.locality_id=l.id
 join public.professional_service_areas pa on pa.service_area_id=m.service_area_id
@@ -232,19 +232,19 @@ begin
   return result;
 end $$;
 
-create or replace function private.professional_booking_issue(p_professional uuid,p_service uuid,p_coverage text)
+create or replace function private.professional_booking_issue(p_professional uuid,p_service uuid,p_pin text)
 returns text language plpgsql stable security definer set search_path='' as $$
 begin
   if not exists(select 1 from public.list_public_professionals() p where p.professional_id=p_professional) then return 'Professional must be currently verified, visible, and eligible'; end if;
   if not exists(select 1 from public.services s join public.service_categories c on c.id=s.category_id where s.id=p_service and s.is_active and s.is_published and c.is_active) then return 'Service is not available'; end if;
   if not exists(select 1 from public.professional_services ps where ps.professional_id=p_professional and ps.service_id=p_service) then return 'Professional has no approved association with this service'; end if;
-  if p_coverage like 'locality:%' then
-    if substring(p_coverage from 10) !~ '^[0-9a-fA-F-]{36}$' or not private.professional_serves_locality(p_professional,substring(p_coverage from 10)::uuid) then return 'No approved active coverage for this locality'; end if;
+  if p_pin like 'locality:%' then
+    if substring(p_pin from 10) !~ '^[0-9a-fA-F-]{36}$' or not private.professional_serves_locality(p_professional,substring(p_pin from 10)::uuid) then return 'No approved active coverage for this locality'; end if;
     return null;
   end if;
   -- Historical booking snapshots may still contain a PIN. New workflows never use it.
   if not exists(select 1 from public.professional_service_areas pa join public.service_areas a on a.id=pa.service_area_id
-    where pa.professional_id=p_professional and a.is_active and a.postal_code=p_coverage) then return 'Historical delivery coverage is no longer eligible'; end if;
+    where pa.professional_id=p_professional and a.is_active and a.postal_code=p_pin) then return 'Historical delivery coverage is no longer eligible'; end if;
   return null;
 end $$;
 
